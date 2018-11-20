@@ -1,0 +1,64 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.robot.oriboa">
+
+
+    <!-- 必要的权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- 添加WIFI设备用到以下3个权限 -->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+
+    <!-- 摄像机设备用到以下2个权限 -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- 小方SDK内部获取手机唯一标识码，不接入小方设备可以去掉 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <!-- 蓝牙权限，不接入T1门锁可去掉蓝牙权限 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <application android:theme="@style/Theme.AppCompat.NoActionBar">
+        <service
+            android:name="com.orvibo.homemate.service.ViCenterService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.vihome.service" />
+            </intent-filter>
+        </service>
+
+
+        <service android:name="com.danale.video.sdk.service.DanaleService" />
+
+
+        <service
+            android:name="com.orvibo.homemate.service.LocationService"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+            <intent-filter android:priority="1000">
+                <action android:name="com.homemate.locationService" />
+            </intent-filter>
+        </service>
+
+
+        <activity
+            android:name=".ScannerActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".AddDeviceTypeActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+    </application>
+
+</manifest>

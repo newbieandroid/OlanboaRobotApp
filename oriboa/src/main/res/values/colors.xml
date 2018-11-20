@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="ali_feedback_default_title_color">#051b28</color>
+    <color name="ali_feedback_grey_btn_default">#cccccc</color>
+</resources>

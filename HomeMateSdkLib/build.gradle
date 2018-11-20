@@ -1,0 +1,40 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionName "3.4.0.311"
+        versionCode 30400311
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    //蓝牙相关
+    compile 'no.nordicsemi.android.support.v18:scanner:1.0.0'
+    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    compile project(':HomeMateLibJar')
+    compile project(':DanaleSdk')
+    compile project(':YSCameraSdk')
+    compile project(':HopeSdk')
+    compile project(':P2PCameraSdk')
+    implementation files('libs/searchgateway-1.9.jar')
+}

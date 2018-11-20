@@ -1,0 +1,6 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.orvibo.homemate.base.lib">
+
+    <uses-sdk tools:overrideLibrary="no.nordicsemi.android.support.v18.scanner" />
+</manifest>

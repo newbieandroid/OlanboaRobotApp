@@ -1,0 +1,57 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionName "3.3.3.200"
+        versionCode 30303200
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/LGPL2.1'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/notice.txt'
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError true
+    }
+
+//    sourceSets.main {
+//        jniLibs.srcDir 'src/main/cameraLibs' // <-- 你的.so库的实际路径
+//    }
+}
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    //    compile 'com.android.support:support-v4:25+'
+    compile "com.android.support:support-v13:$rootProject.supportLibraryVersion"
+    compile 'com.mcxiaoke.volley:library:1.0.19'
+    compile 'com.android.support:multidex:1.0.2'
+    compile 'com.loopj.android:android-async-http:1.4.9'
+    compile 'com.jiechic.library:xUtils:2.6.14'
+//    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    implementation files('libs/AMap_Location_V4.2.0_20180809.jar')
+    implementation files('libs/mina-core-2.0.19.jar')
+    implementation files('libs/slf4j-api-1.7.25.jar')
+}
