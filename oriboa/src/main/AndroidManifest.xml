@@ -55,7 +55,12 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".AddDeviceTypeActivity"
+            android:name=".device.AddDeviceTypeActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".device.HostDeviceTypeActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 

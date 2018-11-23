@@ -43,15 +43,15 @@ android {
 //    }
 }
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     //    compile 'com.android.support:support-v4:25+'
-    compile "com.android.support:support-v13:$rootProject.supportLibraryVersion"
-    compile 'com.mcxiaoke.volley:library:1.0.19'
-    compile 'com.android.support:multidex:1.0.2'
-    compile 'com.loopj.android:android-async-http:1.4.9'
-    compile 'com.jiechic.library:xUtils:2.6.14'
+    implementation "com.android.support:support-v13:$rootProject.supportLibraryVersion"
+    api 'com.mcxiaoke.volley:library:1.0.19'
+    api 'com.android.support:multidex:1.0.2'
+    api 'com.loopj.android:android-async-http:1.4.9'
+    api 'com.jiechic.library:xUtils:2.6.14'
 //    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
-    implementation files('libs/AMap_Location_V4.2.0_20180809.jar')
-    implementation files('libs/mina-core-2.0.19.jar')
-    implementation files('libs/slf4j-api-1.7.25.jar')
+    api files('libs/AMap_Location_V4.2.0_20180809.jar')
+    api files('libs/mina-core-2.0.19.jar')
+    api files('libs/slf4j-api-1.7.25.jar')
 }

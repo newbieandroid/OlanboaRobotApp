@@ -5,16 +5,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 
 import com.olanboa.robot.R;
 import com.olanboa.robot.datas.CacheKeys;
 import com.olanboa.robot.util.CacheUtil;
-import com.robot.oriboa.AddDeviceTypeActivity;
-import com.robot.oriboa.ScannerActivity;
+import com.robot.oriboa.device.AddDeviceTypeActivity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 

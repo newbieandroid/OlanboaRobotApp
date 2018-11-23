@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/back_device"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+
+    <ImageView
+        android:id="@+id/familyItemDeviceFunc"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:scaleType="fitCenter"
+        android:src="@mipmap/icon_more" />
+
+
+    <ImageView
+        android:id="@+id/familyItemDeviceTypeIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/home_icon_cammer" />
+
+    <TextView
+        android:id="@+id/familyItemDeviceName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/familyItemDeviceTypeIcon"
+        android:layout_marginTop="10dp"
+        android:drawableRight="@mipmap/home_icon_off"
+        android:drawablePadding="10dp"
+        android:singleLine="true"
+        android:text="设备名称"
+        android:textColor="@android:color/black" />
+
+
+    <TextView
+        android:id="@+id/familyItemDeviceOrder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/familyItemDeviceName"
+        android:layout_marginTop="10dp"
+        android:text="语音控制命令"
+        android:textColor="#ffe5e5e5"
+        android:textSize="12sp" />
+
+</RelativeLayout>

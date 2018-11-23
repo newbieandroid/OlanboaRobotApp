@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <string-array name="deviceType">
+        <item>智能主机</item>
+        <item>MixPad</item>
+        <item>智能插座</item>
+        <item>智能开关</item>
+        <item>智能遥控</item>
+        <item>智能照明</item>
+        <item>智能门锁</item>
+        <item>传感器</item>
+        <item>摄像头</item>
+        <item>智能音响</item>
+        <item>窗帘电机</item>
+        <item>智能晒衣机</item>
+        <item>多功能控制器</item>
+    </string-array>
+
+
+    <string-array name="hostType">
+        <item>ZigBee Mini网关</item>
+        <item>ZigBee智能主机</item>
+        <item>智能网关</item>
+        <item>Allone Pro多功能智能主机</item>
+    </string-array>
+
+</resources>

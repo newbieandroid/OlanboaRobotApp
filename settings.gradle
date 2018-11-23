@@ -1,1 +1,1 @@
-include ':app', ':DanaleSdk', ':P2PCameraSdk', ':YSCameraSdk', ':HomeMateSdkLib', ':HomeMateLibJar', ':HopeSdk', ':oriboa'
+include ':app', ':oriboa', ':DanaleSdk', ':P2PCameraSdk', ':YSCameraSdk', ':HomeMateSdkLib', ':HomeMateLibJar', ':HopeSdk'

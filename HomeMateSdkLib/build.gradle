@@ -27,14 +27,19 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     //蓝牙相关
-    compile 'no.nordicsemi.android.support.v18:scanner:1.0.0'
-    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
-    compile project(':HomeMateLibJar')
-    compile project(':DanaleSdk')
-    compile project(':YSCameraSdk')
-    compile project(':HopeSdk')
-    compile project(':P2PCameraSdk')
-    implementation files('libs/searchgateway-1.9.jar')
+    implementation 'no.nordicsemi.android.support.v18:scanner:1.0.0'
+    implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    api project(':HomeMateLibJar')
+    api project(':DanaleSdk')
+    api project(':YSCameraSdk')
+    api project(':HopeSdk')
+    api project(':P2PCameraSdk')
+    api files('libs/searchgateway-1.9.jar')
+    api files('libs/gson-2.6.2.jar')
+    api files('libs/HomeMate_3.6.0.303_20181122.jar')
+    api files('libs/HomeMate_common_3.6.0.303_20181122.jar')
+    api files('libs/HomeMate_http_3.6.0.303_20181122.jar')
+    api files('libs/HomeMate_kukong_3.6.0.303_20181122.jar')
 }

@@ -10,19 +10,17 @@
         android:layout_height="match_parent">
 
 
+        <fragment
+            android:id="@+id/familyDeviceFragment"
+            android:name="com.robot.oriboa.fragment.FamilyAllDeviceFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
         <ImageView
             android:id="@+id/testBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@mipmap/ic_launcher_round" />
-
-
-        <FrameLayout
-            android:id="@+id/mainContent"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-
     </RelativeLayout>
 
     <LinearLayout
