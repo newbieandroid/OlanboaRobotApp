@@ -1,7 +1,8 @@
 package com.robot.oriboa;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,6 +12,15 @@ import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zxing.ZXingView;
 
 public class ScannerActivity extends AppCompatActivity implements QRCodeView.Delegate {
+
+
+    public static final String SCANRESULT = "scanResult";
+
+    public static void start(Activity activity, int reqCode) {
+
+        activity.startActivityForResult(new Intent(activity, ScannerActivity.class), reqCode);
+    }
+
 
     private ZXingView mZXingView;
 
@@ -45,9 +55,15 @@ public class ScannerActivity extends AppCompatActivity implements QRCodeView.Del
 
     @Override
     public void onScanQRCodeSuccess(String result) {
-        Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-        vibrator.vibrate(200);
-        mZXingView.startSpot();
+//        Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+//        vibrator.vibrate(200);
+//        mZXingView.startSpot(); //拿到识别的结果后继续扫描
+
+
+        Intent intent = new Intent();
+        intent.putExtra(SCANRESULT, result);
+        setResult(RESULT_OK, intent);
+        finish();
 
         Log.e("csl", "-------二维码识别结果-----" + result);
     }
