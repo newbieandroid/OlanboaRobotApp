@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal">
+    android:gravity="center_horizontal"
+    android:keepScreenOn="true">
 
 
     <EditText
@@ -14,7 +15,8 @@
         android:gravity="center_vertical"
         android:hint="请输入智家365账号"
         android:maxLength="20"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:text="806666189@qq.com" />
 
 
     <EditText
@@ -25,7 +27,8 @@
         android:gravity="center_vertical"
         android:hint="请输入智家365密码"
         android:maxLength="20"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:text="csl123456" />
 
 
     <Button

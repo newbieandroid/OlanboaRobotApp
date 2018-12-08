@@ -8,10 +8,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.orvibo.homemate.bo.QRCode;
+import com.orvibo.homemate.dao.QRCodeDao;
+
 import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zxing.ZXingView;
 
 public class ScannerActivity extends AppCompatActivity implements QRCodeView.Delegate {
+
+
+    //扫描欧瑞博设备的二维码格式
+    private static final String QRRULE = "http://www.orvibo.com/software/365.html?id=";
 
 
     public static final String SCANRESULT = "scanResult";
@@ -55,15 +62,23 @@ public class ScannerActivity extends AppCompatActivity implements QRCodeView.Del
 
     @Override
     public void onScanQRCodeSuccess(String result) {
-//        Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-//        vibrator.vibrate(200);
-//        mZXingView.startSpot(); //拿到识别的结果后继续扫描
 
 
-        Intent intent = new Intent();
-        intent.putExtra(SCANRESULT, result);
-        setResult(RESULT_OK, intent);
-        finish();
+        //欧瑞博扫描后的识别见说明文档：http://wiki.orvibo.com:8190/pages/viewpage.action?pageId=19072404
+
+        if (result.contains(QRRULE)) {
+
+            //扫描的设备为欧瑞博正确的格式则返回到上一级页面
+            Intent intent = new Intent();
+            intent.putExtra(SCANRESULT, result.replace(QRRULE, ""));//把格式部分去掉拿到最后的结果
+            setResult(RESULT_OK, intent);
+            finish();
+        } else {
+            //如果扫描的格式不正确则提示信息然后继续扫描
+            mZXingView.startSpot(); //拿到识别的结果后继续扫描
+            Toast.makeText(this, "设备识别信息不正确,请重新扫描", Toast.LENGTH_SHORT).show();
+        }
+
 
         Log.e("csl", "-------二维码识别结果-----" + result);
     }

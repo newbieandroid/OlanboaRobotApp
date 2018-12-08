@@ -10,6 +10,7 @@ import android.view.View;
 
 import com.olanboa.robot.R;
 import com.olanboa.robot.datas.CacheKeys;
+import com.olanboa.robot.service.SanpotService;
 import com.olanboa.robot.util.CacheUtil;
 import com.robot.oriboa.device.AddDeviceTypeActivity;
 
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             finish();
 
         } else {
+
+            startService(new Intent(this, SanpotService.class));
 
             findViewById(R.id.scanDeiceBtn).setOnClickListener(this);
             findViewById(R.id.testBtn).setOnClickListener(this);

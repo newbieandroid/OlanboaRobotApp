@@ -8,13 +8,23 @@ import com.google.gson.Gson;
 import com.olanboa.robot.activity.MainActivity;
 import com.olanboa.robot.base.BasePresenter;
 import com.olanboa.robot.datas.CacheKeys;
+import com.olanboa.robot.service.GuardService;
+import com.olanboa.robot.service.SanpotService;
 import com.olanboa.robot.util.CacheUtil;
 import com.orvibo.homemate.api.listener.BaseResultListener;
 import com.orvibo.homemate.event.BaseEvent;
+import com.orvibo.homemate.util.ActivityManager;
 
 public abstract class LoginPresenter extends BasePresenter<LoginModel, LoginView> {
     public LoginPresenter(Context context, LoginView mainView) {
         super(context, mainView);
+    }
+
+
+    public void startService() {
+        getContext().startService(new Intent(getContext(), SanpotService.class));
+        getContext().startService(new Intent(getContext(), GuardService.class));
+        ActivityManager.getInstance().finishAllActivity();
     }
 
 
@@ -28,9 +38,7 @@ public abstract class LoginPresenter extends BasePresenter<LoginModel, LoginView
 
                 if (baseEvent.isSuccess()) {
                     showToastInfo("登录成功");
-                    Intent intent = new Intent(getContext(), MainActivity.class);
-                    getContext().startActivity(intent);
-
+                    startService();
                     CacheUtil.getInstance().savaBooleanCache(CacheKeys.ISLOGIN, true);
 
 

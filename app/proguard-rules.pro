@@ -172,8 +172,10 @@ public void xxxxxx(**);
 -keepattributes Signature
 
 
--keep class com.qihancloud.opensdk.** {*;}
 
+-keep class com.qihancloud.opensdk.** {*;}
+-keep class com.sanbot.opensdk.**{*;}
+-keep class com.sunbo.main.**{*;}
 
 
 -keep class com.chad.library.adapter.** {

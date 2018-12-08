@@ -10,10 +10,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.olanboa.robot.R;
+import com.olanboa.robot.datas.CacheKeys;
 import com.olanboa.robot.structure.LoginModel;
 import com.olanboa.robot.structure.LoginPresenter;
 import com.olanboa.robot.structure.LoginView;
+import com.olanboa.robot.util.CacheUtil;
 import com.olanboa.robot.util.RegUtils;
+import com.orvibo.homemate.util.ActivityManager;
 
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, LoginView {
@@ -44,6 +47,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         loginBtn.setOnClickListener(this);
         regBtn.setOnClickListener(this);
+
+        //如果已经登陆过账号则直接启动机器人相关的服务
+        if (CacheUtil.getInstance().getBooleanCache(CacheKeys.ISLOGIN, false)) {
+            mainPresenter.startService();
+        }
+
     }
 
     @Override

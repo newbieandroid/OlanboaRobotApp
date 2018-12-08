@@ -26,13 +26,18 @@ public class AddDeviceTypeActivity extends AppCompatActivity implements View.OnC
     private List<String> datas = new ArrayList<>();
 
     @Override
-
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.adddevicetypeactivity);
 
         findViewById(R.id.addDeviceTypeScanBtn).setOnClickListener(this);
         findViewById(R.id.addDeviceTypeScanBtn).setOnClickListener(this);
+
+
+
+
+
+
 
 
         RecyclerView addDeviceTypeList = findViewById(R.id.addDeviceTypeList);
