@@ -69,6 +69,7 @@
 -keep class android.support.v7.** { *; }
 -keep class android.support.v4.** { *; }
 
+
 -keep class com.orvibo.homemate.application.** { *; }
 -keep class com.orvibo.homemate.api.** { *; }
 -keep class com.orvibo.homemate.api.*$* { *; }

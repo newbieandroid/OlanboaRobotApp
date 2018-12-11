@@ -29,6 +29,10 @@
 
         </activity>
 
+        <activity
+            android:name=".activity.FamilyActivity"
+            android:launchMode="singleTask" />
+
         <service
             android:name=".service.SanpotService"
             android:process=".sanpotService">

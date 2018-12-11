@@ -1,11 +1,12 @@
 package com.olanboa.robot.structure;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.olanboa.robot.activity.MainActivity;
+import com.olanboa.robot.activity.FamilyActivity;
+import com.olanboa.robot.activity.LoginActivity;
 import com.olanboa.robot.base.BasePresenter;
 import com.olanboa.robot.datas.CacheKeys;
 import com.olanboa.robot.service.GuardService;
@@ -24,26 +25,37 @@ public abstract class LoginPresenter extends BasePresenter<LoginModel, LoginView
     public void startService() {
         getContext().startService(new Intent(getContext(), SanpotService.class));
         getContext().startService(new Intent(getContext(), GuardService.class));
-        ActivityManager.getInstance().finishAllActivity();
+        getContext().startActivity(new Intent(getContext(), FamilyActivity.class));
+
+        ActivityManager.getInstance().finishActivity(LoginActivity.class.getName());
     }
 
 
-    public void doLogin(String name, String pass) {
+    public void doLogin(final String name, final String pass) {
+
+
+        final ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle("账号登录中,请稍后");
+        progressDialog.show();
 
         getView().checkLoginInfo();
-
         getModel().doLogin(name, pass, new BaseResultListener() {
             @Override
             public void onResultReturn(BaseEvent baseEvent) {
-
                 if (baseEvent.isSuccess()) {
                     showToastInfo("登录成功");
                     startService();
                     CacheUtil.getInstance().savaBooleanCache(CacheKeys.ISLOGIN, true);
-
+                    CacheUtil.getInstance().savaStringCache(CacheKeys.LOGINACCOUNT, name);
+                    CacheUtil.getInstance().savaStringCache(CacheKeys.LOGINPASS, pass);
 
                 } else {
                     showToastInfo("登录失败,错误码:" + baseEvent.getResult());
+                }
+
+                if (progressDialog.isShowing()) {
+                    progressDialog.dismiss();
                 }
 
             }

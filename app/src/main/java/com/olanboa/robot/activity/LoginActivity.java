@@ -16,7 +16,6 @@ import com.olanboa.robot.structure.LoginPresenter;
 import com.olanboa.robot.structure.LoginView;
 import com.olanboa.robot.util.CacheUtil;
 import com.olanboa.robot.util.RegUtils;
-import com.orvibo.homemate.util.ActivityManager;
 
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, LoginView {
@@ -48,9 +47,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         loginBtn.setOnClickListener(this);
         regBtn.setOnClickListener(this);
 
-        //如果已经登陆过账号则直接启动机器人相关的服务
+        //如果已经登陆过账号则直接启动机器人相关的服务F
         if (CacheUtil.getInstance().getBooleanCache(CacheKeys.ISLOGIN, false)) {
-            mainPresenter.startService();
+            //重新登录一次
+            checkLoginCache(loginNameEt, loginPassEt);
+
+            mainPresenter.doLogin(CacheUtil.getInstance().getStringCache(CacheKeys.LOGINACCOUNT, ""),
+                    CacheUtil.getInstance().getStringCache(CacheKeys.LOGINPASS, ""));
+
         }
 
     }
@@ -67,6 +71,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
         }
 
+    }
+
+    @Override
+    public void checkLoginCache(EditText userNameEt, EditText passEt) {
+
+
+        String loginName = CacheUtil.getInstance().getStringCache(CacheKeys.LOGINACCOUNT, "");
+        String passWord = CacheUtil.getInstance().getStringCache(CacheKeys.LOGINPASS, "");
+
+        if (!TextUtils.isEmpty(loginName)) {
+            userNameEt.setText(loginName);
+        }
+
+        if (!TextUtils.isEmpty(passWord)) {
+            passEt.setText(passWord);
+        }
     }
 
     @Override

@@ -31,6 +31,18 @@ public class CacheUtil {
         sharedPreferences = context.getSharedPreferences("OlanboaCache", Context.MODE_PRIVATE);
     }
 
+
+    public void savaStringCache(String key, String data) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(key, data);
+        editor.apply();
+    }
+
+    public String getStringCache(String key, String defaultResult) {
+        return sharedPreferences.getString(key, defaultResult);
+    }
+
+
     public void savaBooleanCache(String key, boolean data) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(key, data);

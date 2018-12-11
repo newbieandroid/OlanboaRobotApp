@@ -10,7 +10,7 @@
 
 
     <style name="APPTheme" parent="@style/Theme.AppCompat.NoActionBar">
-        <item name="android:windowBackground">@drawable/timg_meitu_1</item>
+        <item name="android:windowBackground">@drawable/icon_splash</item>
     </style>
 
 

@@ -8,17 +8,22 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.olanboa.robot.ProcessConnection;
 import com.olanboa.robot.activity.LoginActivity;
 import com.olanboa.robot.datas.CacheKeys;
 import com.olanboa.robot.datas.GrammerData;
-import com.robot.oriboa.bean.VoiceControlDevType;
 import com.olanboa.robot.util.CacheUtil;
 import com.orvibo.homemate.api.LocalDataApi;
+import com.orvibo.homemate.api.listener.BaseResultListener;
 import com.orvibo.homemate.bo.Device;
+import com.orvibo.homemate.event.BaseEvent;
 import com.orvibo.homemate.model.family.FamilyManager;
+import com.orvibo.homemate.util.ActivityManager;
+import com.robot.oriboa.helper.DeviceControHelper;
 import com.sanbot.opensdk.base.BindBaseService;
 import com.sanbot.opensdk.beans.FuncConstant;
 import com.sanbot.opensdk.function.beans.EmotionsType;
@@ -30,6 +35,9 @@ import com.sanbot.opensdk.function.unit.interfaces.speech.RecognizeListener;
 
 import java.util.List;
 import java.util.Random;
+
+import static com.olanboa.robot.datas.GrammerData.closeOrder;
+import static com.olanboa.robot.datas.GrammerData.openOrder;
 
 
 public class SanpotService extends BindBaseService {
@@ -69,6 +77,8 @@ public class SanpotService extends BindBaseService {
 
         if (!CacheUtil.getInstance().getBooleanCache(CacheKeys.ISLOGIN, false)) {
             startActivity(new Intent(this, LoginActivity.class));
+        }else{
+            ActivityManager.getInstance().finishAllActivity();
         }
 
     }
@@ -85,11 +95,6 @@ public class SanpotService extends BindBaseService {
 
     @Override
     protected void onMainServiceConnected() {
-
-
-        //获取所有的设备
-        String familyId = FamilyManager.getCurrentFamilyId();
-        final List<Device> deviceList = LocalDataApi.getDevicesByFamily(familyId);
 
 
         //设置机器人的表情
@@ -130,6 +135,27 @@ public class SanpotService extends BindBaseService {
                     //当返回值为true时，表示机器人不再对该文字做后续响应，false反之
 
 
+                    //获取家庭下所有的设备
+                    String currentFamilyId = CacheUtil.getInstance().getStringCache(CacheKeys.CURRENTFAMILYID, "");
+
+                    if (TextUtils.isEmpty(currentFamilyId)) {
+                        currentFamilyId = FamilyManager.getCurrentFamilyId();
+                        CacheUtil.getInstance().savaStringCache(CacheKeys.CURRENTFAMILYID, currentFamilyId);
+                    }
+
+
+                    //获取所有的设备
+                    final List<Device> deviceList = LocalDataApi.getDevicesByFamily(currentFamilyId);
+
+
+                    for (Device item : deviceList) {
+                        Log.e("csl", "设备信息:" + new Gson().toJson(item));
+                    }
+
+
+                    CacheUtil.getInstance().getStringCache(CacheKeys.CURRENTFAMILYID, "");
+
+
                     String meansText = grammar.getText();
 
                     Log.e("csl", "=======机器人识别的文字=====" + meansText);
@@ -138,9 +164,31 @@ public class SanpotService extends BindBaseService {
 
                         if (meansText.contains(item.getDeviceName())) {
 
-                            meansText = meansText.replace(item.getDeviceName(), "");
 
-                            startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
+                            DeviceControHelper deviceControHelper = new DeviceControHelper(item);
+
+                            if (meansText.contains(openOrder)) {
+                                startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
+
+                                deviceControHelper.deviceSwitch(true, new BaseResultListener() {
+                                    @Override
+                                    public void onResultReturn(BaseEvent baseEvent) {
+                                    }
+                                });
+
+                            } else if (meansText.contains(closeOrder)) {
+                                startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
+
+                                deviceControHelper.deviceSwitch(false, new BaseResultListener() {
+                                    @Override
+                                    public void onResultReturn(BaseEvent baseEvent) {
+                                    }
+                                });
+
+                            } else {
+                                startSpeak(speechManager, GrammerData.orderError);
+                            }
+
 
                             return true;
                         }
