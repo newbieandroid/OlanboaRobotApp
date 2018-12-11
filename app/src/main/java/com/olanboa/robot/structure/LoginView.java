@@ -10,7 +10,7 @@ public interface LoginView extends BaseView {
     void checkLoginCache(EditText userNameEt,EditText passEt);
 
 
-    void checkLoginInfo();
+    boolean checkLoginInfo();
 
     boolean checkRegInfo();
 

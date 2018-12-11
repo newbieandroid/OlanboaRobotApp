@@ -33,9 +33,7 @@
             android:name=".activity.FamilyActivity"
             android:launchMode="singleTask" />
 
-        <service
-            android:name=".service.SanpotService"
-            android:process=".sanpotService">
+        <service android:name=".service.SanpotService">
 
             <meta-data
                 android:name="RECOGNIZE_MODE"
@@ -43,9 +41,7 @@
 
         </service>
 
-        <service
-            android:name=".service.GuardService"
-            android:process=".guardSanpotService" />
+        <service android:name=".service.GuardService" />
 
 
         <receiver android:name=".receiver.BootBroadcastReceiver">

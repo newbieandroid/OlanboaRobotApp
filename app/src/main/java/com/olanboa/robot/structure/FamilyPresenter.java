@@ -11,9 +11,9 @@ import com.olanboa.robot.listener.GetFamilyListListener;
 import com.olanboa.robot.util.CacheUtil;
 import com.orvibo.homemate.api.FamilyApi;
 import com.orvibo.homemate.api.listener.BaseResultListener;
-import com.orvibo.homemate.dao.DeviceDao;
 import com.orvibo.homemate.event.BaseEvent;
 import com.orvibo.homemate.event.family.QueryFamilyEvent;
+import com.orvibo.homemate.model.family.FamilyManager;
 import com.orvibo.homemate.sharedPreferences.UserCache;
 
 public class FamilyPresenter extends BasePresenter<FamilyModel, FamilyView> {
@@ -42,12 +42,13 @@ public class FamilyPresenter extends BasePresenter<FamilyModel, FamilyView> {
                 new BaseResultListener() {
                     @Override
                     public void onResultReturn(BaseEvent baseEvent) {
-                        CacheUtil.getInstance().savaStringCache(CacheKeys.CURRENTFAMILYID, familyId);
-                        //重新获取这个家庭下的所有设备，缓存下来
-                        DeviceDao.getInstance().getDevicesByRoom(familyId, null);
 
+                        String userId = UserCache.getUserId(getContext(), CacheUtil.getInstance().getStringCache(CacheKeys.LOGINACCOUNT, ""));
+                        FamilyManager.saveFamilyId(userId, familyId);
+                        FamilyManager.saveCurrentFamilyId(familyId);
 
                         progressDialog.dismiss();
+
 
                     }
                 });
@@ -75,6 +76,8 @@ public class FamilyPresenter extends BasePresenter<FamilyModel, FamilyView> {
                         if (listListener != null) {
                             listListener.onResult(true, queryEvent.getFamilyList());
                         }
+
+                        Log.e("csl", "--房间信息-->" + new Gson().toJson(queryEvent.getFamilyList()));
 
                     } else {
                         if (listListener != null) {

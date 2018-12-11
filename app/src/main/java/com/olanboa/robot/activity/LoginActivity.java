@@ -90,16 +90,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     @Override
-    public void checkLoginInfo() {
+    public boolean checkLoginInfo() {
         if (TextUtils.isEmpty(loginNameEt.getText())) {
             Toast.makeText(this, "请输入登录账号", Toast.LENGTH_SHORT).show();
-            return;
+            return true;
         }
 
         if (TextUtils.isEmpty(loginPassEt.getText())) {
             Toast.makeText(this, "请输入登录密码", Toast.LENGTH_SHORT).show();
-            return;
+            return true;
         }
+
+        return false;
     }
 
     @Override

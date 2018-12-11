@@ -14,9 +14,12 @@ import com.orvibo.homemate.util.ActivityManager;
 
 public class MyApp extends Application {
 
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+
         UserApi.setDebugMode(true, true);
         //初始化HomeMate SDK。如果app继承了VihomeApplication则不需要再初始化sdk；如果没有继承则需要先初始化。
         OrviboApi.initHomeMateSDK(this);

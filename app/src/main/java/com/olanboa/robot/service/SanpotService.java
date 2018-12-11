@@ -2,17 +2,18 @@ package com.olanboa.robot.service;
 
 
 import android.app.Notification;
+import android.app.PendingIntent;
+import android.app.Service;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.olanboa.robot.ProcessConnection;
+import com.olanboa.robot.R;
 import com.olanboa.robot.activity.LoginActivity;
 import com.olanboa.robot.datas.CacheKeys;
 import com.olanboa.robot.datas.GrammerData;
@@ -41,31 +42,74 @@ import static com.olanboa.robot.datas.GrammerData.openOrder;
 
 
 public class SanpotService extends BindBaseService {
+    private ServiceConnection mConnection;
+
+    private static final int PID = android.os.Process.myPid();
 
 
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
+    private static final int serviceFlags = 100;
+
+
+    public void setForeground() {
+        // sdk < 18 , 直接调用startForeground即可,不会在通知栏创建通知
+        if (Build.VERSION.SDK_INT < 18) {
+            this.startForeground(serviceFlags, getNotification());
+            return;
+        }
+
+        if (null == mConnection) {
+            mConnection = new CoverServiceConnection();
+        }
+
+        this.bindService(new Intent(this, SanpotService.class), mConnection,
+                Service.BIND_AUTO_CREATE);
+    }
+
+    private Notification getNotification() {
+        // 定义一个notification
+        Notification notification = new Notification();
+        Intent notificationIntent = new Intent(this, SanpotService.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                notificationIntent, 0);
+        // notification.setLatestEventInfo(this, "Foreground", "正在运行哦",
+        // pendingIntent);
+
+        Notification.Builder builder = new Notification.Builder(this)
+                .setAutoCancel(true).setContentTitle("欧朗博")
+                .setContentText("智能语音控制系统正在运行").setContentIntent(pendingIntent)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setWhen(System.currentTimeMillis()).setOngoing(true);
+        notification = builder.getNotification();
+        return notification;
+    }
+
+    private class CoverServiceConnection implements ServiceConnection {
         @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            Log.e("csl", "SanpotService:建立链接");
-
+        public void onServiceDisconnected(ComponentName name) {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            //断开链接
-            startService(new Intent(SanpotService.this, GuardService.class));
-            //重新绑定
-            bindService(new Intent(SanpotService.this, GuardService.class), mServiceConnection, Context.BIND_IMPORTANT);
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+
+            // sdk >= 18 的，会在通知栏显示service正在运行，这里不要让用户感知，所以这里的实现方式是利用2个同进程的service，利用相同的notificationID，
+            // 2个service分别startForeground，然后只在1个service里stopForeground，这样即可去掉通知栏的显示
+            Service helpService = ((GuardService.LocalBinder) binder)
+                    .getService();
+            startForeground(serviceFlags, getNotification());
+            helpService.startForeground(PID, getNotification());
+            helpService.stopForeground(true);
+
+            SanpotService.this.unbindService(mConnection);
+            mConnection = null;
         }
-    };
+    }
 
 
     @Nullable
     @Override
 
     public IBinder onBind(Intent intent) {
-        return new ProcessConnection.Stub() {
-        };
+        return null;
 
     }
 
@@ -77,7 +121,7 @@ public class SanpotService extends BindBaseService {
 
         if (!CacheUtil.getInstance().getBooleanCache(CacheKeys.ISLOGIN, false)) {
             startActivity(new Intent(this, LoginActivity.class));
-        }else{
+        } else {
             ActivityManager.getInstance().finishAllActivity();
         }
 
@@ -87,9 +131,9 @@ public class SanpotService extends BindBaseService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        startForeground(1, new Notification());
-        //绑定建立链接
-        bindService(new Intent(this, GuardService.class), mServiceConnection, Context.BIND_IMPORTANT);
+
+        setForeground();
+
         return START_STICKY;
     }
 
@@ -135,25 +179,14 @@ public class SanpotService extends BindBaseService {
                     //当返回值为true时，表示机器人不再对该文字做后续响应，false反之
 
 
-                    //获取家庭下所有的设备
-                    String currentFamilyId = CacheUtil.getInstance().getStringCache(CacheKeys.CURRENTFAMILYID, "");
-
-                    if (TextUtils.isEmpty(currentFamilyId)) {
-                        currentFamilyId = FamilyManager.getCurrentFamilyId();
-                        CacheUtil.getInstance().savaStringCache(CacheKeys.CURRENTFAMILYID, currentFamilyId);
-                    }
+                    Log.e("csl", "---------------->" + FamilyManager.getCurrentFamilyId());
 
 
-                    //获取所有的设备
-                    final List<Device> deviceList = LocalDataApi.getDevicesByFamily(currentFamilyId);
-
+                    List<Device> deviceList = LocalDataApi.getDevicesByFamily(FamilyManager.getCurrentFamilyId());
 
                     for (Device item : deviceList) {
                         Log.e("csl", "设备信息:" + new Gson().toJson(item));
                     }
-
-
-                    CacheUtil.getInstance().getStringCache(CacheKeys.CURRENTFAMILYID, "");
 
 
                     String meansText = grammar.getText();
@@ -210,6 +243,17 @@ public class SanpotService extends BindBaseService {
         }
     }
 
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (Build.VERSION.SDK_INT >= 24) {
+            stopForeground(Service.STOP_FOREGROUND_REMOVE);
+        } else {
+            stopForeground(true);
+        }
+
+    }
 
     private void startSpeak(SpeechManager speechManager, String text) {
         //开始欢迎语的语音合成

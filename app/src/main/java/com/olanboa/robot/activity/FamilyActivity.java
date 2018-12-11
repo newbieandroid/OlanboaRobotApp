@@ -15,12 +15,11 @@ import com.bumptech.glide.Glide;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.olanboa.robot.R;
-import com.olanboa.robot.datas.CacheKeys;
 import com.olanboa.robot.listener.GetFamilyListListener;
 import com.olanboa.robot.structure.FamilyPresenter;
 import com.olanboa.robot.structure.FamilyView;
-import com.olanboa.robot.util.CacheUtil;
 import com.orvibo.homemate.bo.Family;
+import com.orvibo.homemate.model.family.FamilyManager;
 
 import java.util.List;
 
@@ -60,16 +59,13 @@ public class FamilyActivity extends AppCompatActivity implements FamilyView {
                         @Override
                         public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
 
-                            final String switchFamilyId = familyList.get(position).getFamilyId();
+                            final String switchFamilyId = ((Family) adapter.getData().get(position)).getFamilyId();
+
+                            if (FamilyManager.getCurrentFamilyId().equals(switchFamilyId)) {
+                                return;
+                            }
 
                             familyPresenter.switchFamily(switchFamilyId);
-
-
-                            Family item = (Family) adapter.getData().get(position);
-                            item.getFamilyId();
-                            CacheUtil.getInstance().savaStringCache(CacheKeys.CURRENTFAMILYID, item.getFamilyId());
-
-
                         }
                     });
 

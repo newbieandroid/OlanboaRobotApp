@@ -3,7 +3,6 @@ package com.olanboa.robot.structure;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.olanboa.robot.activity.FamilyActivity;
 import com.olanboa.robot.activity.LoginActivity;
@@ -33,13 +32,15 @@ public abstract class LoginPresenter extends BasePresenter<LoginModel, LoginView
 
     public void doLogin(final String name, final String pass) {
 
+        if (getView().checkLoginInfo()) {
+            return;
+        }
 
         final ProgressDialog progressDialog = new ProgressDialog(getContext());
         progressDialog.setCancelable(false);
         progressDialog.setTitle("账号登录中,请稍后");
         progressDialog.show();
 
-        getView().checkLoginInfo();
         getModel().doLogin(name, pass, new BaseResultListener() {
             @Override
             public void onResultReturn(BaseEvent baseEvent) {
