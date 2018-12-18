@@ -3,9 +3,7 @@ package com.olanboa.robot.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
-import com.olanboa.robot.service.GuardService;
 import com.olanboa.robot.service.SanpotService;
 
 public class BootBroadcastReceiver extends BroadcastReceiver {
@@ -14,14 +12,31 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
 
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
 
         if (intent.getAction().equals(ACTION_BOOT)) {
 
-            Log.e("csl", "----收到开机启动广播----------");
 
-            context.startService(new Intent(context, SanpotService.class));
-            context.startService(new Intent(context, GuardService.class));
+//            String userName = CacheUtil.getInstance().getStringCache(CacheKeys.LOGINACCOUNT, "");
+//
+//            String userPass = CacheUtil.getInstance().getStringCache(CacheKeys.LOGINPASS, "");
+
+
+//            if (!TextUtils.isEmpty(userName) && !TextUtils.isEmpty(userPass)) {
+//
+//                UserApi.login(userName, userPass, true, new BaseResultListener() {
+//                    @Override
+//                    public void onResultReturn(BaseEvent baseEvent) {
+//
+//                        if (baseEvent.isSuccess()) {
+                            context.startService(new Intent(context, SanpotService.class));
+//                        }
+//
+//                    }
+//                });
+//
+//            }
+
         }
 
     }

@@ -30,6 +30,7 @@ public class MyApp extends Application {
         //页面状态监听
         registerActivityLifecycleCallbacks(new ActivityStateListener());
 
+
     }
 
     @Override

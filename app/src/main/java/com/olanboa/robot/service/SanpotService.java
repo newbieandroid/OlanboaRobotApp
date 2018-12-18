@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -17,6 +16,7 @@ import com.olanboa.robot.R;
 import com.olanboa.robot.activity.LoginActivity;
 import com.olanboa.robot.datas.CacheKeys;
 import com.olanboa.robot.datas.GrammerData;
+import com.olanboa.robot.util.BdSdkUtils;
 import com.olanboa.robot.util.CacheUtil;
 import com.orvibo.homemate.api.LocalDataApi;
 import com.orvibo.homemate.api.listener.BaseResultListener;
@@ -30,9 +30,15 @@ import com.sanbot.opensdk.beans.FuncConstant;
 import com.sanbot.opensdk.function.beans.EmotionsType;
 import com.sanbot.opensdk.function.beans.SpeakOption;
 import com.sanbot.opensdk.function.beans.speech.Grammar;
+import com.sanbot.opensdk.function.beans.speech.SpeakStatus;
 import com.sanbot.opensdk.function.unit.SpeechManager;
 import com.sanbot.opensdk.function.unit.SystemManager;
 import com.sanbot.opensdk.function.unit.interfaces.speech.RecognizeListener;
+import com.sanbot.opensdk.function.unit.interfaces.speech.SpeakListener;
+import com.sanbot.opensdk.function.unit.interfaces.speech.SpeechListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Random;
@@ -45,7 +51,6 @@ public class SanpotService extends BindBaseService {
     private ServiceConnection mConnection;
 
     private static final int PID = android.os.Process.myPid();
-
 
     private static final int serviceFlags = 100;
 
@@ -105,15 +110,6 @@ public class SanpotService extends BindBaseService {
     }
 
 
-    @Nullable
-    @Override
-
-    public IBinder onBind(Intent intent) {
-        return null;
-
-    }
-
-
     @Override
     public void onCreate() {
         register(SanpotService.class);
@@ -124,6 +120,7 @@ public class SanpotService extends BindBaseService {
         } else {
             ActivityManager.getInstance().finishAllActivity();
         }
+
 
     }
 
@@ -156,6 +153,7 @@ public class SanpotService extends BindBaseService {
             //开始欢迎语的语音合成
             startSpeak(speechManager, GrammerData.SanPotWelcome);
 
+
             //监听机器人识别的文字
             speechManager.setOnSpeechListener(new RecognizeListener() {
 
@@ -175,60 +173,80 @@ public class SanpotService extends BindBaseService {
                 }
 
                 @Override
-                public boolean onRecognizeResult(Grammar grammar) {
+                public boolean onRecognizeResult(final Grammar grammar) {
                     //当返回值为true时，表示机器人不再对该文字做后续响应，false反之
 
 
-                    Log.e("csl", "---------------->" + FamilyManager.getCurrentFamilyId());
-
-
-                    List<Device> deviceList = LocalDataApi.getDevicesByFamily(FamilyManager.getCurrentFamilyId());
+                    final List<Device> deviceList = LocalDataApi.getDevicesByFamily(FamilyManager.getCurrentFamilyId());
 
                     for (Device item : deviceList) {
                         Log.e("csl", "设备信息:" + new Gson().toJson(item));
                     }
 
 
-                    String meansText = grammar.getText();
+                    final String meansText = grammar.getText();
 
                     Log.e("csl", "=======机器人识别的文字=====" + meansText);
 
-                    for (Device item : deviceList) {
 
-                        if (meansText.contains(item.getDeviceName())) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            for (final Device item : deviceList) {
+
+                                try {
+                                    if (BdSdkUtils.getInstance().simnet(meansText, item.getDeviceName()).getDouble("score") >= 0.6) {
 
 
-                            DeviceControHelper deviceControHelper = new DeviceControHelper(item);
+                                        DeviceControHelper deviceControHelper = new DeviceControHelper(item);
 
-                            if (meansText.contains(openOrder)) {
-                                startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
+                                        if (meansText.contains(openOrder)) {
+                                            startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
 
-                                deviceControHelper.deviceSwitch(true, new BaseResultListener() {
-                                    @Override
-                                    public void onResultReturn(BaseEvent baseEvent) {
+                                            deviceControHelper.deviceSwitch(true, new BaseResultListener() {
+                                                @Override
+                                                public void onResultReturn(BaseEvent baseEvent) {
+                                                }
+                                            });
+
+                                        } else if (meansText.contains(closeOrder)) {
+                                            startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
+
+                                            deviceControHelper.deviceSwitch(false, new BaseResultListener() {
+                                                @Override
+                                                public void onResultReturn(BaseEvent baseEvent) {
+                                                }
+                                            });
+
+                                        } else {
+                                            startSpeak(speechManager, GrammerData.orderError);
+                                        }
+
+
+                                        break;
                                     }
-                                });
 
-                            } else if (meansText.contains(closeOrder)) {
-                                startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
+                                    Thread.sleep(200);
 
-                                deviceControHelper.deviceSwitch(false, new BaseResultListener() {
-                                    @Override
-                                    public void onResultReturn(BaseEvent baseEvent) {
-                                    }
-                                });
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
 
-                            } else {
-                                startSpeak(speechManager, GrammerData.orderError);
+
                             }
 
 
-                            return true;
                         }
+                    }).start();
 
+
+                    if (meansText.contains(openOrder) || meansText.contains(closeOrder)) {
+                        return true;
                     }
 
-                    Log.e("csl", "识别的内容交给机器人自己处理");
 
                     return false;
                 }

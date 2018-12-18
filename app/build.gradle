@@ -71,4 +71,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation project(':oriboa')
     implementation(name: 'SanbotOpenSDK_2.0.1.0', ext: 'aar')
+    implementation files('libs/aip-java-sdk-4.9.0.jar')
+    implementation files('libs/json-20160810.jar')
+    implementation files('libs/log4j-1.2.17.jar')
 }
