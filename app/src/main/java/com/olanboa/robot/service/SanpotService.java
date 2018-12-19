@@ -30,12 +30,9 @@ import com.sanbot.opensdk.beans.FuncConstant;
 import com.sanbot.opensdk.function.beans.EmotionsType;
 import com.sanbot.opensdk.function.beans.SpeakOption;
 import com.sanbot.opensdk.function.beans.speech.Grammar;
-import com.sanbot.opensdk.function.beans.speech.SpeakStatus;
 import com.sanbot.opensdk.function.unit.SpeechManager;
 import com.sanbot.opensdk.function.unit.SystemManager;
 import com.sanbot.opensdk.function.unit.interfaces.speech.RecognizeListener;
-import com.sanbot.opensdk.function.unit.interfaces.speech.SpeakListener;
-import com.sanbot.opensdk.function.unit.interfaces.speech.SpeechListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -139,7 +136,7 @@ public class SanpotService extends BindBaseService {
 
 
         //设置机器人的表情
-        SystemManager systemManager = (SystemManager) getUnitManager(FuncConstant.SYSTEM_MANAGER);
+        final SystemManager systemManager = (SystemManager) getUnitManager(FuncConstant.SYSTEM_MANAGER);
         if (systemManager != null) {
             systemManager.showEmotion(EmotionsType.SMILE);
         }
@@ -184,19 +181,46 @@ public class SanpotService extends BindBaseService {
                     }
 
 
-                    final String meansText = grammar.getText();
-
-                    Log.e("csl", "=======机器人识别的文字=====" + meansText);
-
-
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
 
+
+                            String meansText = grammar.getText();
+
+                            Log.e("csl", "=======机器人识别的文字=====" + meansText);
+
                             for (final Device item : deviceList) {
 
                                 try {
-                                    if (BdSdkUtils.getInstance().simnet(meansText, item.getDeviceName()).getDouble("score") >= 0.6) {
+
+                                    if (meansText.contains("text")) {
+                                        meansText = new JSONObject(meansText).getString("text");
+                                    }
+
+
+                                    JSONObject jsonObject = BdSdkUtils.getInstance().simnet(meansText, item.getDeviceName());
+
+                                    Log.e("csl", "--------语义相识度------>" + jsonObject.toString());
+
+
+                                    //如果超过百度每秒的识别限制则直接退出
+                                    if (jsonObject.toString().contains("error_code")
+                                            &&
+                                            (jsonObject.getInt("error_code") == 17
+                                                    || jsonObject.getInt("error_code") == 18
+                                                    || jsonObject.getInt("error_code") == 19)
+                                            ) {
+                                        systemManager.showEmotion(EmotionsType.QUESTION);
+                                        startSpeak(speechManager, GrammerData.orderError);
+                                        break;
+                                    }
+
+
+                                    Thread.sleep(300);
+
+
+                                    if (jsonObject.getDouble("score") >= 0.6) {
 
 
                                         DeviceControHelper deviceControHelper = new DeviceControHelper(item);
@@ -227,7 +251,6 @@ public class SanpotService extends BindBaseService {
                                         break;
                                     }
 
-                                    Thread.sleep(200);
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -243,7 +266,7 @@ public class SanpotService extends BindBaseService {
                     }).start();
 
 
-                    if (meansText.contains(openOrder) || meansText.contains(closeOrder)) {
+                    if (grammar.getText().contains(openOrder) || grammar.getText().contains(closeOrder)) {
                         return true;
                     }
 
