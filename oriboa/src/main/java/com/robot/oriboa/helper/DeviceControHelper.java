@@ -1,6 +1,5 @@
 package com.robot.oriboa.helper;
 
-import android.os.Environment;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -14,11 +13,6 @@ import com.orvibo.homemate.api.listener.BaseResultListener;
 import com.orvibo.homemate.bo.Device;
 import com.orvibo.homemate.event.BaseEvent;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 /**
@@ -103,9 +97,8 @@ public class DeviceControHelper {
     }
 
 
-    /*打开或者关闭设备*/
-    public void deviceSwitch(boolean isOpen, BaseResultListener listener) {
-
+    /*所有设备的开关操作都走这个方法*/
+    public void deviceSwitch(boolean isOpen, final BaseResultListener listener) {
 
         switch (controlDevice.getDeviceType()) {
 
@@ -126,7 +119,6 @@ public class DeviceControHelper {
                     @Override
                     public void onSuccess(String s, IrDataList irDataList) {
 
-                        Log.e("csl", "------电视获取码库成功----->" + new Gson().toJson(irDataList));
 
                         IrData irData = irDataList.getIrDataList().get(0);
 
@@ -139,38 +131,10 @@ public class DeviceControHelper {
                                         irData.fre,
                                         item.pulse.split(",").length,
                                         item.pulse,
-                                        false, new BaseResultListener() {
-                                            @Override
-                                            public void onResultReturn(BaseEvent baseEvent) {
-                                                Log.e("csl", "---电视开关F操作结果------->" + baseEvent.isSuccess());
-
-
-                                            }
-                                        });
+                                        false, listener);
 
                                 break;
                             }
-                        }
-
-
-                        //取得SD卡根目录
-                        try {
-                            File file = new File(Environment.getExternalStorageDirectory(), "aaa.txt");
-                            if (!file.exists()) {
-                                file.createNewFile();
-                            }
-
-                            OutputStreamWriter outputStreamWriter = null;
-
-                            BufferedWriter out = new BufferedWriter(outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file.getAbsolutePath(), true)));
-                            out.newLine();
-                            out.write(new Gson().toJson(irDataList));
-
-                            outputStreamWriter.close();
-                            out.close();
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
 
                     }
@@ -184,94 +148,72 @@ public class DeviceControHelper {
 
                 break;
             case 5: //空调控制
-
-                String value = "off";
-                if (isOpen) {
-                    value = "on";
-                }
-
-
-                KookongSDK.getACIrByCmd(controlDevice.getIrDeviceId(), "power", value, 1, controlDevice.getDeviceId(), new IRequestResult<AcIr>() {
-
-                    @Override
-                    public void onSuccess(String s, final AcIr acIr) {
-                        Log.e("csl", "------空调操作成功------->" + new Gson().toJson(acIr));
-
-
-                        DeviceControlApi.allOneControl(controlDevice.getUid(),
-                                controlDevice.getDeviceId(),
-                                acIr.frequency,
-                                acIr.pulse.split(",").length,
-                                acIr.pulse,
-                                false, new BaseResultListener() {
-                                    @Override
-                                    public void onResultReturn(BaseEvent baseEvent) {
-                                        Log.e("csl", "---空调操作结果------->" + baseEvent.isSuccess());
-
-
-                                    }
-                                });
-
-
-//                        KookongSDK.getIRDataById("" + acIr.rid, 5, "", new IRequestResult<IrDataList>() {
-//                            public void onSuccess(String var1, IrDataList irDataList) {
-//
-//
-//                                IrData irData = irDataList.getIrDataList().get(0);
-//                                final KKACManagerV2 kkacManagerV2 = new KKACManagerV2();
-//                                kkacManagerV2.initIRData(irData.rid, irData.exts, null);
-//
-//
-//                                KookongSDK.getDefaultACStatus(irData.rid + "", new IRequestResult<ACStateV2>() {
-//                                    @Override
-//                                    public void onSuccess(String var1, ACStateV2 acStateV2) {
-//
-//
-//                                        Log.e("csl", "-------成功0------>" + acStateV2.getCurPowerState());
-//
-//                                        String acState = "";
-//                                        if (acStateV2 != null) {
-//                                            acState = Json.get().toJson(acStateV2);
-//                                        }
-//                                        kkacManagerV2.setACStateV2FromString(acState);
-//
-////                                        kkacManagerV2.changePowerState();
-//
-//
-//
-//
-//                                    }
-//
-//                                    @Override
-//                                    public void onFail(Integer var1, String var2) {
-//
-//
-//                                        Log.e("csl", "-------失败------>");
-//
-//
-//                                    }
-//                                });
-//
-//
-//                            }
-//
-//                            public void onFail(Integer var1, String var2) {
-//                            }
-//                        });
-
-
-                    }
-
-                    @Override
-                    public void onFail(Integer integer, String s) {
-
-                        Log.e("csl", "------空调操作失败----" + s + "--->" + integer);
-
-                    }
-                });
+                tempDeviceControl(true, isOpen, listener);
                 break;
         }
 
+    }
+
+
+    /*空调设备的开关或者温度操作*/
+    public void tempDeviceControl(boolean isSwitchC, boolean isHighState, final BaseResultListener listener) {
+
+
+        if (controlDevice.getDeviceType() != 5) {
+            Log.e("csl", "调用tempDeviceControl方法错误，该方法只支持对空调的操作");
+            return;
+        }
+
+        String cmd = "power";
+        String value = "on";
+
+        if (isSwitchC) {
+
+            cmd = "power";
+
+            if (isHighState) {
+                value = "on";
+            } else {
+                value = "off";
+            }
+
+        } else {
+
+            if (isHighState) {
+                cmd = "temperatureUp";
+            } else {
+                cmd = "temperatureDown";
+            }
+
+            value = "";
+        }
+
+
+        KookongSDK.getACIrByCmd(controlDevice.getIrDeviceId(), cmd, value, 1, controlDevice.getDeviceId(), new IRequestResult<AcIr>() {
+
+            @Override
+            public void onSuccess(String s, final AcIr acIr) {
+                Log.e("csl", "------空调操作成功------->" + new Gson().toJson(acIr));
+
+
+                DeviceControlApi.allOneControl(controlDevice.getUid(),
+                        controlDevice.getDeviceId(),
+                        acIr.frequency,
+                        acIr.pulse.split(",").length,
+                        acIr.pulse,
+                        false, listener);
+
+
+            }
+
+            @Override
+            public void onFail(Integer integer, String s) {
+
+
+                Log.e("csl", "------空调操作失败----" + s + "--->" + integer);
+
+            }
+        });
 
     }
 

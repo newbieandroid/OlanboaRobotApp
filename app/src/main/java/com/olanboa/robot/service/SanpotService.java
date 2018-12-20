@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Random;
 
 import static com.olanboa.robot.datas.GrammerData.closeOrder;
+import static com.olanboa.robot.datas.GrammerData.highState;
+import static com.olanboa.robot.datas.GrammerData.lowerState;
 import static com.olanboa.robot.datas.GrammerData.openOrder;
 
 
@@ -182,6 +184,8 @@ public class SanpotService extends BindBaseService {
                     Log.e("csl", "=======机器人识别的文字=====" + grammar.getText());
 
 
+                    final List<Room> roomList = LocalDataApi.getAllRooms(FamilyManager.getCurrentFamilyId());
+
                     final List<Device> deviceList = LocalDataApi.getDevicesByFamily(FamilyManager.getCurrentFamilyId());
 
                     for (Device item : deviceList) {
@@ -192,7 +196,6 @@ public class SanpotService extends BindBaseService {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-
 
                             for (final Device item : deviceList) {
 
@@ -223,6 +226,12 @@ public class SanpotService extends BindBaseService {
                                     switch (item.getDeviceType()) {
                                         case 5://空调
                                             deviceTypeName = "空调";
+
+
+                                            if (meansText.contains("温度")) {
+                                                deviceTypeName = "温度";
+                                            }
+
                                             break;
                                         case 6://电视
                                             deviceTypeName = "电视";
@@ -234,28 +243,36 @@ public class SanpotService extends BindBaseService {
 
                                         if (meansText.contains(deviceTypeName)
                                                 &&
-                                                (meansText.contains(openOrder) || meansText.contains(closeOrder))
+                                                (meansText.contains(openOrder) || meansText.contains(closeOrder)
+                                                        || meansText.contains(highState) || meansText.contains(lowerState))
                                                 ) {
+
+
+                                            //获取当前设备的房间名称
+                                            String roomName = "";
+                                            for (Room room : roomList) {
+                                                if (room.getRoomId() == item.getRoomId()) {
+                                                    roomName = room.getRoomName();
+                                                    break;
+                                                }
+                                            }
 
 
                                             if (meansText.contains(openOrder)) {
                                                 meansText = openOrder + deviceTypeName;
                                             } else if (meansText.contains(closeOrder)) {
                                                 meansText = closeOrder + deviceTypeName;
+                                            } else if (meansText.contains(highState)) {
+                                                meansText = highState + deviceTypeName;
+                                            } else if (meansText.contains(lowerState)) {
+                                                meansText = lowerState + deviceTypeName;
                                             }
 
 
-                                            List<Room> roomList = LocalDataApi.getAllRooms(FamilyManager.getCurrentFamilyId());
-
-
-                                            String roomName = "";
-                                            for (Room room : roomList) {
-                                                if (room.getRoomId() == item.getRoomId()) {
-                                                    roomName = room.getRoomName();
-
-                                                    break;
-                                                }
+                                            if (!TextUtils.isEmpty(roomName) && meansText.contains(roomName)) {
+                                                meansText = roomName + roomName;
                                             }
+
 
                                             if (!TextUtils.isEmpty(roomName) && item.getDeviceName().contains(roomName)) {
                                                 item.setDeviceName(item.getRoomName() + deviceTypeName);
@@ -266,15 +283,12 @@ public class SanpotService extends BindBaseService {
 
                                         }
 
-
                                     }
 
 
                                     //进行语义识别
                                     JSONObject jsonObject = BdSdkUtils.getInstance().simnet(meansText, item);
-
                                     Log.e("csl", "--------语义相识度------>" + jsonObject.toString());
-
 
                                     //如果超过百度每秒的识别限制则直接退出
                                     if (jsonObject.toString().contains("error_code")
@@ -295,19 +309,19 @@ public class SanpotService extends BindBaseService {
 
                                         DeviceControHelper deviceControHelper = new DeviceControHelper(item);
 
-                                        if (meansText.contains(openOrder)) {
+                                        if (meansText.contains(openOrder) || meansText.contains(closeOrder)) {
                                             startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
 
-                                            deviceControHelper.deviceSwitch(true, new BaseResultListener() {
+                                            deviceControHelper.deviceSwitch(meansText.contains(openOrder) ? true : false, new BaseResultListener() {
                                                 @Override
                                                 public void onResultReturn(BaseEvent baseEvent) {
                                                 }
                                             });
 
-                                        } else if (meansText.contains(closeOrder)) {
+                                        } else if (meansText.contains(highState) || meansText.contains(lowerState)) {
                                             startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
 
-                                            deviceControHelper.deviceSwitch(false, new BaseResultListener() {
+                                            deviceControHelper.tempDeviceControl(false, meansText.contains(highState) ? true : false, new BaseResultListener() {
                                                 @Override
                                                 public void onResultReturn(BaseEvent baseEvent) {
                                                 }
@@ -336,7 +350,10 @@ public class SanpotService extends BindBaseService {
                     }).start();
 
 
-                    if (grammar.getText().contains(openOrder) || grammar.getText().contains(closeOrder)) {
+                    if (grammar.getText().contains(openOrder)
+                            || grammar.getText().contains(closeOrder)
+                            || grammar.getText().contains(highState)
+                            || grammar.getText().contains(lowerState)) {
                         return true;
                     }
 
