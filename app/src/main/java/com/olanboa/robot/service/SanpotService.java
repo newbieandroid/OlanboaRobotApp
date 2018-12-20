@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -21,6 +22,7 @@ import com.olanboa.robot.util.CacheUtil;
 import com.orvibo.homemate.api.LocalDataApi;
 import com.orvibo.homemate.api.listener.BaseResultListener;
 import com.orvibo.homemate.bo.Device;
+import com.orvibo.homemate.bo.Room;
 import com.orvibo.homemate.event.BaseEvent;
 import com.orvibo.homemate.model.family.FamilyManager;
 import com.orvibo.homemate.util.ActivityManager;
@@ -176,10 +178,14 @@ public class SanpotService extends BindBaseService {
                         return false;
                     }
 
+
+                    Log.e("csl", "=======机器人识别的文字=====" + grammar.getText());
+
+
                     final List<Device> deviceList = LocalDataApi.getDevicesByFamily(FamilyManager.getCurrentFamilyId());
 
                     for (Device item : deviceList) {
-                        Log.e("csl", "设备信息:" + new Gson().toJson(item));
+                        Log.e("csl", "--所有本地设备信息-->" + new Gson().toJson(item));
                     }
 
 
@@ -188,20 +194,84 @@ public class SanpotService extends BindBaseService {
                         public void run() {
 
 
-                            String meansText = grammar.getText();
-
-                            Log.e("csl", "=======机器人识别的文字=====" + meansText);
-
                             for (final Device item : deviceList) {
+
+                                //控制的设备类型0, 1,2,5,6, 19, 29, 38,43,,
+                                if (item.getDeviceType() != 0
+                                        && item.getDeviceType() != 1
+                                        && item.getDeviceType() != 19
+                                        && item.getDeviceType() != 38
+                                        && item.getDeviceType() != 2
+                                        && item.getDeviceType() != 43
+                                        && item.getDeviceType() != 29
+                                        && item.getDeviceType() != 6
+                                        && item.getDeviceType() != 5) {
+                                    continue;
+                                }
+
 
                                 try {
 
+                                    String meansText = grammar.getText();
                                     if (meansText.contains("text")) {
-                                        meansText = new JSONObject(meansText).getString("text");
+                                        meansText = new JSONObject(grammar.getText()).getString("text");
                                     }
 
 
-                                    JSONObject jsonObject = BdSdkUtils.getInstance().simnet(meansText, item.getDeviceName());
+                                    String deviceTypeName = "";
+
+                                    switch (item.getDeviceType()) {
+                                        case 5://空调
+                                            deviceTypeName = "空调";
+                                            break;
+                                        case 6://电视
+                                            deviceTypeName = "电视";
+                                            break;
+
+                                    }
+
+                                    if (!deviceTypeName.isEmpty()) {
+
+                                        if (meansText.contains(deviceTypeName)
+                                                &&
+                                                (meansText.contains(openOrder) || meansText.contains(closeOrder))
+                                                ) {
+
+
+                                            if (meansText.contains(openOrder)) {
+                                                meansText = openOrder + deviceTypeName;
+                                            } else if (meansText.contains(closeOrder)) {
+                                                meansText = closeOrder + deviceTypeName;
+                                            }
+
+
+                                            List<Room> roomList = LocalDataApi.getAllRooms(FamilyManager.getCurrentFamilyId());
+
+
+                                            String roomName = "";
+                                            for (Room room : roomList) {
+                                                if (room.getRoomId() == item.getRoomId()) {
+                                                    roomName = room.getRoomName();
+
+                                                    break;
+                                                }
+                                            }
+
+                                            if (!TextUtils.isEmpty(roomName) && item.getDeviceName().contains(roomName)) {
+                                                item.setDeviceName(item.getRoomName() + deviceTypeName);
+                                            } else {
+                                                item.setDeviceName(deviceTypeName);
+                                            }
+
+
+                                        }
+
+
+                                    }
+
+
+                                    //进行语义识别
+                                    JSONObject jsonObject = BdSdkUtils.getInstance().simnet(meansText, item);
 
                                     Log.e("csl", "--------语义相识度------>" + jsonObject.toString());
 
@@ -219,11 +289,9 @@ public class SanpotService extends BindBaseService {
                                     }
 
 
-                                    Thread.sleep(300);
+                                    Thread.sleep(200);
 
-
-                                    if (jsonObject.getDouble("score") >= 0.6) {
-
+                                    if (jsonObject.getDouble("score") >= 0.55) {
 
                                         DeviceControHelper deviceControHelper = new DeviceControHelper(item);
 
@@ -304,4 +372,6 @@ public class SanpotService extends BindBaseService {
         speakOption.setLanguageType(SpeakOption.LAG_CHINESE);
         speechManager.startSpeak(text, speakOption);
     }
+
+
 }

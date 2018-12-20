@@ -1,15 +1,25 @@
 package com.robot.oriboa.helper;
 
+import android.os.Environment;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.hzy.tvmao.KookongSDK;
 import com.hzy.tvmao.interf.IRequestResult;
 import com.kookong.app.data.AcIr;
+import com.kookong.app.data.IrData;
+import com.kookong.app.data.IrDataList;
 import com.orvibo.homemate.api.DeviceControlApi;
 import com.orvibo.homemate.api.listener.BaseResultListener;
 import com.orvibo.homemate.bo.Device;
 import com.orvibo.homemate.event.BaseEvent;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 
 /**
  * 欧瑞博设备的控制
@@ -99,8 +109,7 @@ public class DeviceControHelper {
 
         switch (controlDevice.getDeviceType()) {
 
-            //能够直接控制开关状态的设备
-            case 0:
+            case 0: //能够直接控制开关状态的设备
             case 1:
             case 2:
             case 19:
@@ -110,13 +119,77 @@ public class DeviceControHelper {
                     DeviceControlApi.deviceClose(controlDevice.getUid(), controlDevice.getDeviceId(), 100, listener);
                 }
                 break;
-            case com.hzy.tvmao.ir.Device.AC:
+            case 6://电视控制
 
+                KookongSDK.getIRDataById(controlDevice.getIrDeviceId(), com.hzy.tvmao.ir.Device.TV, "", new IRequestResult<IrDataList>() {
+
+                    @Override
+                    public void onSuccess(String s, IrDataList irDataList) {
+
+                        Log.e("csl", "------电视获取码库成功----->" + new Gson().toJson(irDataList));
+
+                        IrData irData = irDataList.getIrDataList().get(0);
+
+                        ArrayList<IrData.IrKey> keyArrayList = irData.keys;
+
+                        for (IrData.IrKey item : keyArrayList) {
+                            if (item.fkey.equals("电源")) {
+                                DeviceControlApi.allOneControl(controlDevice.getUid(),
+                                        controlDevice.getDeviceId(),
+                                        irData.fre,
+                                        item.pulse.split(",").length,
+                                        item.pulse,
+                                        false, new BaseResultListener() {
+                                            @Override
+                                            public void onResultReturn(BaseEvent baseEvent) {
+                                                Log.e("csl", "---电视开关F操作结果------->" + baseEvent.isSuccess());
+
+
+                                            }
+                                        });
+
+                                break;
+                            }
+                        }
+
+
+                        //取得SD卡根目录
+                        try {
+                            File file = new File(Environment.getExternalStorageDirectory(), "aaa.txt");
+                            if (!file.exists()) {
+                                file.createNewFile();
+                            }
+
+                            OutputStreamWriter outputStreamWriter = null;
+
+                            BufferedWriter out = new BufferedWriter(outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file.getAbsolutePath(), true)));
+                            out.newLine();
+                            out.write(new Gson().toJson(irDataList));
+
+                            outputStreamWriter.close();
+                            out.close();
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                    @Override
+                    public void onFail(Integer integer, String s) {
+                        Log.e("csl", "------电视失败----->" + integer);
+                    }
+                });
+
+
+                break;
+            case 5: //空调控制
 
                 String value = "off";
                 if (isOpen) {
                     value = "on";
                 }
+
 
                 KookongSDK.getACIrByCmd(controlDevice.getIrDeviceId(), "power", value, 1, controlDevice.getDeviceId(), new IRequestResult<AcIr>() {
 

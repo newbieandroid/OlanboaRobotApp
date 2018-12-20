@@ -1,8 +1,7 @@
 package com.olanboa.robot.util;
 
-import android.content.Context;
-
 import com.baidu.aip.nlp.AipNlp;
+import com.orvibo.homemate.bo.Device;
 
 import org.json.JSONObject;
 
@@ -39,7 +38,7 @@ public class BdSdkUtils {
         return client.lexer(text, null);
     }
 
-    public JSONObject simnet(String text1, String text2) {
+    public JSONObject simnet(String userSpeak, Device device) {
 
 //        BOW（词包）模型
 //
@@ -57,6 +56,6 @@ public class BdSdkUtils {
         HashMap<String, Object> options = new HashMap<String, Object>();
         options.put("model", "CNN");
 
-        return client.simnet(text1, text2, options);
+        return client.simnet(userSpeak, device.getDeviceName(), options);
     }
 }
