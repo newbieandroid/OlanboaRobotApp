@@ -11,3 +11,4 @@
 .externalNativeBuild
 *.txt
 /.idea
+gradle.properties

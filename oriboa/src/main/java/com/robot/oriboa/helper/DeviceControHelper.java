@@ -112,11 +112,9 @@ public class DeviceControHelper {
                 break;
             case com.hzy.tvmao.ir.Device.AC:
 
-                Log.e("csl", "进入空调控制");
 
                 String value = "off";
                 if (isOpen) {
-
                     value = "on";
                 }
 
