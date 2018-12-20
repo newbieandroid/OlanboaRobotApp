@@ -6,14 +6,16 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.GenericRequestBuilder;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.olanboa.robot.R;
@@ -71,7 +73,15 @@ public class FamilyActivity extends AppCompatActivity implements FamilyView {
                         @Override
                         protected void convert(BaseViewHolder helper, Family item) {
                             helper.setText(R.id.familyItemDeviceName, item.getFamilyName());
-                            Glide.with(FamilyActivity.this).load(item.getPic()).into((ImageView) helper.itemView.findViewById(R.id.familyItemDeviceTypeIcon));
+
+                            RequestManager.DefaultOptions defaultOptions = new RequestManager.DefaultOptions() {
+                                @Override
+                                public <T> void apply(GenericRequestBuilder<T, ?, ?, ?> genericRequestBuilder) {
+
+                                }
+                            };
+
+                            Glide.with(FamilyActivity.this).load(item.getPic()).error(R.mipmap.ic_launcher_round).into((ImageView) helper.itemView.findViewById(R.id.familyItemDeviceTypeIcon));
                         }
 
                     });
@@ -110,14 +120,14 @@ public class FamilyActivity extends AppCompatActivity implements FamilyView {
 
         familyListView = findViewById(R.id.familyList);
 
-        familyListView.setLayoutManager(new GridLayoutManager(this, 2));
+        familyListView.setLayoutManager(new LinearLayoutManager(this));
 
         familyListView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
 
                 if (parent.getChildAdapterPosition(view) % 2 == 1) {
-                    outRect.set(10, 0, 0, 0);
+                    outRect.set(0, 15, 0, 0);
                 } else {
                     super.getItemOffsets(outRect, view, parent, state);
                 }

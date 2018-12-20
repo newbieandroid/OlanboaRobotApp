@@ -21,7 +21,7 @@ import com.olanboa.robot.util.RegUtils;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, LoginView {
 
     private EditText loginNameEt, loginPassEt;
-    private Button loginBtn, regBtn;
+    private Button loginBtn;
 
     private LoginPresenter mainPresenter;
 
@@ -35,7 +35,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         loginPassEt = findViewById(R.id.loginPassEt);
 
         loginBtn = findViewById(R.id.loginBtn);
-        regBtn = findViewById(R.id.regBtn);
 
         mainPresenter = new LoginPresenter(this, this) {
             @Override
@@ -45,7 +44,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         };
 
         loginBtn.setOnClickListener(this);
-        regBtn.setOnClickListener(this);
 
         //如果已经登陆过账号则直接启动机器人相关的服务F
         if (CacheUtil.getInstance().getBooleanCache(CacheKeys.ISLOGIN, false)) {
@@ -65,9 +63,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         switch (v.getId()) {
             case R.id.loginBtn:
                 mainPresenter.doLogin(loginNameEt.getText().toString(), loginPassEt.getText().toString());
-                break;
-            case R.id.regBtn:
-                mainPresenter.reg(loginNameEt.getText().toString(), loginPassEt.getText().toString());
                 break;
         }
 

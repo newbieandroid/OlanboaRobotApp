@@ -62,23 +62,4 @@ public abstract class LoginPresenter extends BasePresenter<LoginModel, LoginView
     }
 
 
-    public void reg(final String name, final String pass) {
-        if (getView().checkRegInfo()) {
-            getModel().doReg(name, pass, new BaseResultListener.DataListener() {
-                @Override
-                public void onResultReturn(BaseEvent baseEvent, Object o) {
-
-                    if (baseEvent.isSuccess()) {
-                        showToastInfo("注册成功");
-                        getView().regOk(name, pass);
-                        doLogin(name, pass);
-                    } else {
-                        showToastInfo("注册失败,错误码:" + baseEvent.getResult());
-                    }
-
-                }
-            });
-        }
-    }
-
 }

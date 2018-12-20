@@ -15,28 +15,7 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(final Context context, Intent intent) {
 
         if (intent.getAction().equals(ACTION_BOOT)) {
-
-
-//            String userName = CacheUtil.getInstance().getStringCache(CacheKeys.LOGINACCOUNT, "");
-//
-//            String userPass = CacheUtil.getInstance().getStringCache(CacheKeys.LOGINPASS, "");
-
-
-//            if (!TextUtils.isEmpty(userName) && !TextUtils.isEmpty(userPass)) {
-//
-//                UserApi.login(userName, userPass, true, new BaseResultListener() {
-//                    @Override
-//                    public void onResultReturn(BaseEvent baseEvent) {
-//
-//                        if (baseEvent.isSuccess()) {
-                            context.startService(new Intent(context, SanpotService.class));
-//                        }
-//
-//                    }
-//                });
-//
-//            }
-
+            context.startService(new Intent(context, SanpotService.class));
         }
 
     }

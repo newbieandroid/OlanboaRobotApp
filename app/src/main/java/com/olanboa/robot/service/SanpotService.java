@@ -149,9 +149,8 @@ public class SanpotService extends BindBaseService {
 
         if (speechManager != null) {
 
-
             //开始欢迎语的语音合成
-//            startSpeak(speechManager, GrammerData.SanPotWelcome);
+            startSpeak(speechManager, GrammerData.SanPotWelcome);
 
 
             //监听机器人识别的文字
@@ -226,7 +225,6 @@ public class SanpotService extends BindBaseService {
                                     switch (item.getDeviceType()) {
                                         case 5://空调
                                             deviceTypeName = "空调";
-
 
                                             if (meansText.contains("温度")) {
                                                 deviceTypeName = "温度";
