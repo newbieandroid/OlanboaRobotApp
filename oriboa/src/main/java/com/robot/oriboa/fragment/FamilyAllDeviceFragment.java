@@ -7,21 +7,16 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.google.gson.Gson;
 import com.orvibo.homemate.api.LocalDataApi;
-import com.orvibo.homemate.api.listener.BaseResultListener;
 import com.orvibo.homemate.bo.Device;
-import com.orvibo.homemate.event.BaseEvent;
 import com.orvibo.homemate.model.family.FamilyManager;
 import com.robot.oriboa.R;
-import com.robot.oriboa.helper.DeviceControHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,21 +59,7 @@ public class FamilyAllDeviceFragment extends Fragment {
         familyAllDeviceList.setAdapter(adapter = new BaseQuickAdapter<Device, BaseViewHolder>(R.layout.item_familydevice, deviceList = LocalDataApi.getDevicesByFamily(FamilyManager.getCurrentFamilyId())) {
             @Override
             protected void convert(BaseViewHolder helper, Device item) {
-
-                DeviceControHelper deviceControHelper = new DeviceControHelper(item);
-
                 helper.setText(R.id.familyItemDeviceName, item.getDeviceName());
-
-
-                deviceControHelper.knowDevice(new BaseResultListener() {
-                    @Override
-                    public void onResultReturn(BaseEvent baseEvent) {
-
-                        Log.e("csl", "============>" + (baseEvent.toString()));
-
-                    }
-                });
-
             }
         });
 

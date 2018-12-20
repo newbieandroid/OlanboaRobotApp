@@ -76,7 +76,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void checkLoginCache(EditText userNameEt, EditText passEt) {
 
-
         String loginName = CacheUtil.getInstance().getStringCache(CacheKeys.LOGINACCOUNT, "");
         String passWord = CacheUtil.getInstance().getStringCache(CacheKeys.LOGINPASS, "");
 

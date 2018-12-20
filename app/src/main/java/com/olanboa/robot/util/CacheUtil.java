@@ -42,7 +42,6 @@ public class CacheUtil {
         return sharedPreferences.getString(key, defaultResult);
     }
 
-
     public void savaBooleanCache(String key, boolean data) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(key, data);
@@ -54,4 +53,23 @@ public class CacheUtil {
     }
 
 
+    public void clearLoginInfo() {
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(CacheKeys.ISLOGIN);
+        editor.remove(CacheKeys.LOGINACCOUNT);
+        editor.remove(CacheKeys.LOGINPASS);
+        editor.apply();
+
+    }
+
+    public void saveLoginInfo(String userName, String passWord) {
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(CacheKeys.ISLOGIN, true);
+        editor.putString(CacheKeys.LOGINACCOUNT, userName);
+        editor.putString(CacheKeys.LOGINPASS, passWord);
+        editor.apply();
+
+    }
 }

@@ -1,5 +1,6 @@
 package com.olanboa.robot.activity;
 
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -18,6 +20,7 @@ import com.olanboa.robot.R;
 import com.olanboa.robot.listener.GetFamilyListListener;
 import com.olanboa.robot.structure.FamilyPresenter;
 import com.olanboa.robot.structure.FamilyView;
+import com.olanboa.robot.util.CacheUtil;
 import com.orvibo.homemate.bo.Family;
 import com.orvibo.homemate.model.family.FamilyManager;
 
@@ -32,11 +35,28 @@ public class FamilyActivity extends AppCompatActivity implements FamilyView {
 
     private BaseQuickAdapter<Family, BaseViewHolder> adapter;
 
+    private Button exitLoginActivity;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.familyactivitylayout);
+
+        exitLoginActivity = findViewById(R.id.exitLoginActivity);
+
+        exitLoginActivity.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                CacheUtil.getInstance().clearLoginInfo();
+
+                startActivity(new Intent(FamilyActivity.this, LoginActivity.class));
+                finish();
+
+            }
+        });
+
 
         familyPresenter = new FamilyPresenter(this, this);
 

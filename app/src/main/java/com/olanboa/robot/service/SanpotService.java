@@ -118,7 +118,6 @@ public class SanpotService extends BindBaseService {
             ActivityManager.getInstance().finishAllActivity();
         }
 
-
     }
 
 
@@ -148,7 +147,7 @@ public class SanpotService extends BindBaseService {
 
 
             //开始欢迎语的语音合成
-            startSpeak(speechManager, GrammerData.SanPotWelcome);
+//            startSpeak(speechManager, GrammerData.SanPotWelcome);
 
 
             //监听机器人识别的文字
@@ -173,6 +172,9 @@ public class SanpotService extends BindBaseService {
                 public boolean onRecognizeResult(final Grammar grammar) {
                     //当返回值为true时，表示机器人不再对该文字做后续响应，false反之
 
+                    if (!CacheUtil.getInstance().getBooleanCache(CacheKeys.ISLOGIN, false)) {
+                        return false;
+                    }
 
                     final List<Device> deviceList = LocalDataApi.getDevicesByFamily(FamilyManager.getCurrentFamilyId());
 

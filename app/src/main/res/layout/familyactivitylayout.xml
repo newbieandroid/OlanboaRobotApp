@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true"
     android:padding="30dp">
 
 
+    <Button
+        android:id="@+id/exitLoginActivity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:text="退出登录" />
+
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/familyList"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_above="@+id/exitLoginActivity" />
 
-</LinearLayout>
+</RelativeLayout>

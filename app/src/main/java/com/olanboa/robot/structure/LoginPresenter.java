@@ -7,7 +7,6 @@ import android.content.Intent;
 import com.olanboa.robot.activity.FamilyActivity;
 import com.olanboa.robot.activity.LoginActivity;
 import com.olanboa.robot.base.BasePresenter;
-import com.olanboa.robot.datas.CacheKeys;
 import com.olanboa.robot.service.GuardService;
 import com.olanboa.robot.service.SanpotService;
 import com.olanboa.robot.util.CacheUtil;
@@ -47,9 +46,7 @@ public abstract class LoginPresenter extends BasePresenter<LoginModel, LoginView
                 if (baseEvent.isSuccess()) {
                     showToastInfo("登录成功");
                     startService();
-                    CacheUtil.getInstance().savaBooleanCache(CacheKeys.ISLOGIN, true);
-                    CacheUtil.getInstance().savaStringCache(CacheKeys.LOGINACCOUNT, name);
-                    CacheUtil.getInstance().savaStringCache(CacheKeys.LOGINPASS, pass);
+                    CacheUtil.getInstance().saveLoginInfo(name, pass);
 
                 } else {
                     showToastInfo("登录失败,错误码:" + baseEvent.getResult());

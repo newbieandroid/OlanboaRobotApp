@@ -79,6 +79,7 @@ public class FamilyPresenter extends BasePresenter<FamilyModel, FamilyView> {
 
                         Log.e("csl", "--房间信息-->" + new Gson().toJson(queryEvent.getFamilyList()));
 
+
                     } else {
                         if (listListener != null) {
                             listListener.onResult(false, null);

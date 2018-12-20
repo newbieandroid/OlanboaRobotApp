@@ -41,9 +41,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            zipAlignEnabled true
-            shrinkResources true
-            minifyEnabled true
+            zipAlignEnabled false
+            shrinkResources false
+            minifyEnabled false
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -54,13 +54,15 @@ android {
     }
 
 
+    repositories {
+        flatDir {
+            dirs 'libs', '../HomeMateSdkLib/libs'
+        }
+    }
+
+
 }
 
-repositories {
-    flatDir {
-        dirs 'libs'
-    }
-}
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')

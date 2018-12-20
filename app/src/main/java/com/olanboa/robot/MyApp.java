@@ -6,9 +6,12 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.multidex.MultiDex;
 
+import com.hzy.tvmao.KookongSDK;
 import com.olanboa.robot.util.CacheUtil;
+import com.orvibo.homemate.api.MagicCubeApi;
 import com.orvibo.homemate.api.OrviboApi;
 import com.orvibo.homemate.api.UserApi;
+import com.orvibo.homemate.application.ViHomeApplication;
 import com.orvibo.homemate.data.IDC;
 import com.orvibo.homemate.util.ActivityManager;
 
@@ -23,6 +26,9 @@ public class MyApp extends Application {
         UserApi.setDebugMode(true, true);
         //初始化HomeMate SDK。如果app继承了VihomeApplication则不需要再初始化sdk；如果没有继承则需要先初始化。
         OrviboApi.initHomeMateSDK(this);
+
+        KookongSDK.init(this, "sdk_android", getResources().getString(R.string.oriboaKey), getResources().getString(R.string.oriboaSource));
+
         UserApi.initSource(getResources().getString(R.string.oriboaSource), IDC.DEFAULT);
 
         CacheUtil.getInstance().init(this);
