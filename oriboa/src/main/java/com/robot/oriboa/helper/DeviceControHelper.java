@@ -11,7 +11,6 @@ import com.kookong.app.data.IrDataList;
 import com.orvibo.homemate.api.DeviceControlApi;
 import com.orvibo.homemate.api.listener.BaseResultListener;
 import com.orvibo.homemate.bo.Device;
-import com.orvibo.homemate.event.BaseEvent;
 
 import java.util.ArrayList;
 
@@ -98,7 +97,14 @@ public class DeviceControHelper {
 
 
     /*所有设备的开关操作都走这个方法*/
-    public void deviceSwitch(boolean isOpen, final BaseResultListener listener) {
+
+
+    public void deviceSwitch(String userName, boolean isOpen, final BaseResultListener listener) {
+
+
+        String order = "open";
+        int value1 = 0;
+
 
         switch (controlDevice.getDeviceType()) {
 
@@ -150,6 +156,52 @@ public class DeviceControHelper {
             case 5: //空调控制
                 tempDeviceControl(true, isOpen, listener);
                 break;
+
+            //=================窗帘类型===================
+
+//            open：打开（窗帘、卷闸门、幕布）。百分比窗帘：value1填写的是窗帘打开的百分比，数值0~100，0表示关闭窗帘；非百分比窗帘0表示关，100表示开，其他值不使用。
+//            close：关闭（窗帘、卷闸门、幕布）。百分比窗帘：无，百分比窗帘没有使用此值，如要关闭百分比窗帘请使用order="open",value1=0；非百分比窗帘：value1填0，其他值不使用。
+//            stop：停止正在执行中的打开或者关闭的动作（窗帘、卷闸门、幕布），value1填50。
+
+            case 3://控制盒 幕布
+
+            case 8://对开窗帘
+
+            case 42: //卷帘（无百分比）
+
+                if (isOpen) {
+                    order = "open";
+                    value1 = 100;
+
+                } else {
+                    order = "close";
+                    value1 = 0;
+                }
+
+                DeviceControlApi.controlRfDevice(userName, controlDevice.getUid(), controlDevice.getDeviceId(),
+                        order, value1, 0, 0, 0, 0, listener);
+
+                break;
+
+            case 4://百叶窗（威士达百叶帘也用此类型，支持百分比）
+            case 34:// 对开窗帘（支持按照百分比控制）
+            case 35://卷帘（支持按照百分比控制）
+            case 72:// 卷帘（支持百分比，支持子类）
+
+
+                order = "open";
+                if (isOpen) {
+                    value1 = 100;
+                } else {
+                    value1 = 0;
+                }
+
+                DeviceControlApi.controlRfDevice(userName, controlDevice.getUid(), controlDevice.getDeviceId(),
+                        order, value1, 0, 0, 0, 0, listener);
+
+                break;
+
+
         }
 
     }

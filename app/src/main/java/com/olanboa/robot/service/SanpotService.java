@@ -23,6 +23,7 @@ import com.orvibo.homemate.api.LocalDataApi;
 import com.orvibo.homemate.api.listener.BaseResultListener;
 import com.orvibo.homemate.bo.Device;
 import com.orvibo.homemate.bo.Room;
+import com.orvibo.homemate.core.product.ProductManager;
 import com.orvibo.homemate.event.BaseEvent;
 import com.orvibo.homemate.model.family.FamilyManager;
 import com.orvibo.homemate.util.ActivityManager;
@@ -189,6 +190,8 @@ public class SanpotService extends BindBaseService {
 
                     for (Device item : deviceList) {
                         Log.e("csl", "--所有本地设备信息-->" + new Gson().toJson(item));
+
+                        Log.e("csl", "=============>" + ProductManager.isRFSonDevice(item));
                     }
 
 
@@ -198,7 +201,7 @@ public class SanpotService extends BindBaseService {
 
                             for (final Device item : deviceList) {
 
-                                //控制的设备类型0, 1,2,5,6, 19, 29, 38,43,,
+                                //todo 每次增加控制设备 在这里需要添加对应的设备号
                                 if (item.getDeviceType() != 0
                                         && item.getDeviceType() != 1
                                         && item.getDeviceType() != 19
@@ -207,7 +210,16 @@ public class SanpotService extends BindBaseService {
                                         && item.getDeviceType() != 43
                                         && item.getDeviceType() != 29
                                         && item.getDeviceType() != 6
-                                        && item.getDeviceType() != 5) {
+                                        && item.getDeviceType() != 5
+                                        && item.getDeviceType() != 3
+                                        && item.getDeviceType() != 4
+                                        && item.getDeviceType() != 8
+                                        && item.getDeviceType() != 34
+                                        && item.getDeviceType() != 35
+                                        && item.getDeviceType() != 42
+                                        && item.getDeviceType() != 72
+
+                                        ) {
                                     continue;
                                 }
 
@@ -310,9 +322,11 @@ public class SanpotService extends BindBaseService {
                                         if (meansText.contains(openOrder) || meansText.contains(closeOrder)) {
                                             startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
 
-                                            deviceControHelper.deviceSwitch(meansText.contains(openOrder) ? true : false, new BaseResultListener() {
+                                            deviceControHelper.deviceSwitch(CacheUtil.getInstance().getStringCache(CacheKeys.LOGINACCOUNT, ""), meansText.contains(openOrder) ? true : false, new BaseResultListener() {
                                                 @Override
                                                 public void onResultReturn(BaseEvent baseEvent) {
+
+
                                                 }
                                             });
 
