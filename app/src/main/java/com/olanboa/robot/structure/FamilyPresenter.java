@@ -7,13 +7,13 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.olanboa.robot.base.BasePresenter;
 import com.olanboa.robot.datas.CacheKeys;
+import com.olanboa.robot.listener.FamilySwitchListener;
 import com.olanboa.robot.listener.GetFamilyListListener;
 import com.olanboa.robot.util.CacheUtil;
 import com.orvibo.homemate.api.FamilyApi;
 import com.orvibo.homemate.api.listener.BaseResultListener;
 import com.orvibo.homemate.event.BaseEvent;
 import com.orvibo.homemate.event.family.QueryFamilyEvent;
-import com.orvibo.homemate.model.family.FamilyManager;
 import com.orvibo.homemate.sharedPreferences.UserCache;
 
 public class FamilyPresenter extends BasePresenter<FamilyModel, FamilyView> {
@@ -28,7 +28,7 @@ public class FamilyPresenter extends BasePresenter<FamilyModel, FamilyView> {
 
 
     /*切换家庭*/
-    public void switchFamily(final String familyId) {
+    public void switchFamily(final String familyId, final FamilySwitchListener listener) {
 
         final ProgressDialog progressDialog = new ProgressDialog(getContext());
         progressDialog.setCancelable(false);
@@ -43,9 +43,9 @@ public class FamilyPresenter extends BasePresenter<FamilyModel, FamilyView> {
                     @Override
                     public void onResultReturn(BaseEvent baseEvent) {
 
-                        String userId = UserCache.getUserId(getContext(), CacheUtil.getInstance().getStringCache(CacheKeys.LOGINACCOUNT, ""));
-                        FamilyManager.saveFamilyId(userId, familyId);
-                        FamilyManager.saveCurrentFamilyId(familyId);
+                        if (listener != null) {
+                            listener.isSwitchOk(baseEvent.isSuccess());
+                        }
 
                         progressDialog.dismiss();
 

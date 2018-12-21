@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/back_device"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+
+    <ImageView
+        android:id="@+id/familyItemIcon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:scaleType="fitXY"
+        android:src="@mipmap/ic_launcher" />
+
+
+    <TextView
+        android:id="@+id/familyItemeName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/familyItemIcon"
+        android:layout_marginTop="10dp"
+        android:drawablePadding="10dp"
+        android:singleLine="true"
+        android:text="家庭名称"
+        android:textColor="@android:color/black" />
+
+
+    <ImageView
+        android:id="@+id/familyItemStateIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:padding="@dimen/dp_10"
+        android:src="@drawable/select" />
+
+</RelativeLayout>

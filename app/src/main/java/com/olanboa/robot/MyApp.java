@@ -8,15 +8,18 @@ import android.support.multidex.MultiDex;
 
 import com.hzy.tvmao.KookongSDK;
 import com.olanboa.robot.util.CacheUtil;
-import com.orvibo.homemate.api.MagicCubeApi;
 import com.orvibo.homemate.api.OrviboApi;
 import com.orvibo.homemate.api.UserApi;
-import com.orvibo.homemate.application.ViHomeApplication;
 import com.orvibo.homemate.data.IDC;
 import com.orvibo.homemate.util.ActivityManager;
 
 public class MyApp extends Application {
 
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        System.gc();
+    }
 
     @Override
     public void onCreate() {
