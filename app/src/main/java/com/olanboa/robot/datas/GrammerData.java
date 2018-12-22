@@ -13,6 +13,8 @@ public class GrammerData {
 
     public static final String orderError = "主人,这条命令我还不会";
 
+    public static final String offLine = "已离线";
+
 
     /*设备开关控制*/
     public static final String openOrder = "开";

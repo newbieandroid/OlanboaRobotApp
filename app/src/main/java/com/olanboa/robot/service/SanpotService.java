@@ -21,10 +21,14 @@ import com.olanboa.robot.util.BdSdkUtils;
 import com.olanboa.robot.util.CacheUtil;
 import com.orvibo.homemate.api.LocalDataApi;
 import com.orvibo.homemate.api.listener.BaseResultListener;
+import com.orvibo.homemate.api.listener.OnNewPropertyReportListener;
 import com.orvibo.homemate.bo.Device;
+import com.orvibo.homemate.bo.DeviceStatus;
+import com.orvibo.homemate.bo.PayloadData;
 import com.orvibo.homemate.bo.Room;
 import com.orvibo.homemate.core.product.ProductManager;
 import com.orvibo.homemate.event.BaseEvent;
+import com.orvibo.homemate.model.PropertyReport;
 import com.orvibo.homemate.model.family.FamilyManager;
 import com.orvibo.homemate.util.ActivityManager;
 import com.robot.oriboa.helper.DeviceControHelper;
@@ -153,7 +157,6 @@ public class SanpotService extends BindBaseService {
             //开始欢迎语的语音合成
             startSpeak(speechManager, GrammerData.SanPotWelcome);
 
-
             //监听机器人识别的文字
             speechManager.setOnSpeechListener(new RecognizeListener() {
 
@@ -260,11 +263,11 @@ public class SanpotService extends BindBaseService {
 
                                             //获取当前设备的房间名称
                                             String roomName = "";
-                                            for (Room room : roomList) {
-                                                if (room.getRoomId() == item.getRoomId()) {
-                                                    roomName = room.getRoomName();
-                                                    break;
-                                                }
+
+                                            Room room = getRoomById(item.getRoomId());
+
+                                            if (room != null) {
+                                                roomName = room.getRoomName();
                                             }
 
 
@@ -379,8 +382,117 @@ public class SanpotService extends BindBaseService {
                 }
             });
 
-
         }
+
+
+        PropertyReport.getInstance(getApplicationContext()).registerNewPropertyReport(new OnNewPropertyReportListener() {
+
+            @Override
+            public void onNewPropertyReport(Device device, DeviceStatus deviceStatus, PayloadData payloadData) {
+
+
+                if (!deviceStatus.isOnline()) {
+                    speechManager.startSpeak(device.getDeviceName() + GrammerData.offLine);
+                } else {
+                    Room room = getRoomById(device.getRoomId());
+                    String deviceName = "";
+                    if (room != null) {
+                        deviceName = room.getRoomName() + "的" + device.getDeviceName();
+                    } else {
+                        deviceName = device.getDeviceName();
+                    }
+
+                    switch (device.getDeviceType()) {
+                        case 25://可燃气体传感器
+                            //value1填写0表示正常，填写1表示报警；value3填写0表示低电量，填写1表示正常电量
+
+                            if (deviceStatus.getValue1() == 1) {
+
+                                if (deviceStatus.getValue3() == 0) {
+                                    speechManager.startSpeak("主人," + deviceName + "电量低,请充电");
+                                } else {
+                                    speechManager.startSpeak("主人," + deviceName + "检测到可燃气体,请注意");
+                                }
+
+                            }
+
+
+                            break;
+                        case 26://红外人体传感器
+                            //value1填写0表示无报警，填写1表示检测到入侵；value2填写1表示入侵的人一直存在，填写0表示没有检测到入侵持续存在
+
+                            if (deviceStatus.getValue1() == 1) {
+                                speechManager.startSpeak("主人," + deviceName + "检测到有人入侵,请立即查看");
+                            }
+
+                            break;
+                        case 27://烟雾传感器
+                            //value1填写0表示没有检测到烟雾，填写1表示检测到烟雾报警；value3填写0表示低电量，填写1表示正常电量
+
+                            if (deviceStatus.getValue1() == 1) {
+
+                                if (deviceStatus.getValue3() == 0) {
+                                    speechManager.startSpeak("主人," + deviceName + "电量低,请充电");
+                                } else {
+                                    speechManager.startSpeak("主人," + deviceName + "检测到烟雾浓度超标,请立即查看");
+                                }
+                            }
+
+                            break;
+
+                        case 54://水浸传探测器
+                            // value1填写0表示正常，填写1表示报警；value3填写0表示低电量，填写1表示正常电量；value4填写电量值。
+
+                            if (deviceStatus.getValue1() == 1) {
+
+                                if (deviceStatus.getValue3() == 0) {
+                                    speechManager.startSpeak("主人," + deviceName + "电量低,请充电");
+                                } else {
+                                    speechManager.startSpeak("主人," + deviceName + "检测到浸水,请立即查看");
+                                }
+                            }
+
+                            break;
+                        case 55://一氧化碳报警器
+                            //value1填写0表示正常，填写1表示报警；value3填写0表示低电量，填写1表示正常电量；value4填写电量值。
+
+                            if (deviceStatus.getValue1() == 1) {
+
+                                if (deviceStatus.getValue3() == 0) {
+                                    speechManager.startSpeak("主人," + deviceName + "电量低,请充电");
+                                } else {
+                                    speechManager.startSpeak("主人," + deviceName + "检测到一氧化铵浓度超标,请立即查看");
+                                }
+                            }
+
+                            break;
+
+                        case 56://紧急按钮
+                            //value1填写0表示正常，填写1表示报警；value3填写0表示低电量，填写1表示正常电量
+
+                            if (deviceStatus.getValue1() == 1) {
+
+                                if (deviceStatus.getValue3() == 0) {
+                                    speechManager.startSpeak("主人," + deviceName + "电量低,请充电");
+                                } else {
+                                    speechManager.startSpeak("主人," + deviceName + "正在呼救");
+                                }
+                            }
+
+                            break;
+                    }
+                }
+
+
+                Log.e("csl", "=============设备属性报告==========");
+                Log.e("csl", "-device---" + new Gson().toJson(device));
+                Log.e("csl", "--------DeviceStatus---->" + new Gson().toJson(deviceStatus));
+                Log.e("csl", "-------payloadData--------->" + new Gson().toJson(payloadData));
+                Log.e("csl", "========报告=======END======================");
+            }
+        });
+
+
     }
 
 
@@ -400,6 +512,22 @@ public class SanpotService extends BindBaseService {
         final SpeakOption speakOption = new SpeakOption();
         speakOption.setLanguageType(SpeakOption.LAG_CHINESE);
         speechManager.startSpeak(text, speakOption);
+    }
+
+
+    private Room getRoomById(String roomId) {
+
+        List<Room> roomList = LocalDataApi.getAllRooms(FamilyManager.getCurrentFamilyId());
+
+        for (Room item : roomList) {
+            if (item.getRoomId().equals(roomId)) {
+                return item;
+            }
+        }
+
+
+        return null;
+
     }
 
 
