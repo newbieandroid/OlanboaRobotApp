@@ -17,12 +17,14 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.olanboa.robot.R;
+import com.olanboa.robot.datas.CacheKeys;
 import com.olanboa.robot.listener.FamilySwitchListener;
 import com.olanboa.robot.listener.GetFamilyListListener;
 import com.olanboa.robot.structure.FamilyPresenter;
 import com.olanboa.robot.structure.FamilyView;
 import com.olanboa.robot.transform.CircleTransform;
 import com.olanboa.robot.util.CacheUtil;
+import com.orvibo.homemate.api.UserApi;
 import com.orvibo.homemate.bo.Family;
 import com.orvibo.homemate.model.family.FamilyManager;
 import com.sanbot.opensdk.base.BindBaseActivity;
@@ -59,8 +61,10 @@ public class FamilyActivity extends BindBaseActivity implements FamilyView {
 
             @Override
             public void onClick(View v) {
-                CacheUtil.getInstance().clearLoginInfo();
 
+
+                UserApi.logout(CacheUtil.getInstance().getStringCache(CacheKeys.LOGINACCOUNT, ""));
+                CacheUtil.getInstance().clearLoginInfo();
                 startActivity(new Intent(FamilyActivity.this, LoginActivity.class));
                 finish();
 
@@ -74,11 +78,6 @@ public class FamilyActivity extends BindBaseActivity implements FamilyView {
 
         final CircleTransform circleTransform = new CircleTransform(getContext());
 
-//                new CircleTransform(getContext(), 2, getResources().getColor(android.R.color.darker_gray));
-
-//        final DrawableRequestBuilder<Integer> transforms = Glide
-//                .with(FamilyActivity.this)
-//                .load(R.drawable.ic_launcher).transform(circleTransform);
 
         familyPresenter.queryFamilyList(new GetFamilyListListener() {
             @Override
@@ -154,20 +153,6 @@ public class FamilyActivity extends BindBaseActivity implements FamilyView {
 
                         }
                     });
-
-//                    adapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
-//                        @Override
-//                        public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-//
-//                            final String switchFamilyId = ((Family) adapter.getData().get(position)).getFamilyId();
-//
-//                            if (FamilyManager.getCurrentFamilyId().equals(switchFamilyId)) {
-//                                return;
-//                            }
-//
-//                            familyPresenter.switchFamily(switchFamilyId, null);
-//                        }
-//                    });
 
 
                 } else {

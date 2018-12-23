@@ -186,9 +186,6 @@ public class SanpotService extends BindBaseService {
 
                     Log.e("csl", "=======机器人识别的文字=====" + grammar.getText());
 
-
-                    final List<Room> roomList = LocalDataApi.getAllRooms(FamilyManager.getCurrentFamilyId());
-
                     final List<Device> deviceList = LocalDataApi.getDevicesByFamily(FamilyManager.getCurrentFamilyId());
 
                     for (Device item : deviceList) {
@@ -390,11 +387,15 @@ public class SanpotService extends BindBaseService {
             @Override
             public void onNewPropertyReport(Device device, DeviceStatus deviceStatus, PayloadData payloadData) {
 
+                Room room = getRoomById(device.getRoomId());
+                if (room == null) {
+                    return;
+                }
+
 
                 if (!deviceStatus.isOnline()) {
                     speechManager.startSpeak(device.getDeviceName() + GrammerData.offLine);
                 } else {
-                    Room room = getRoomById(device.getRoomId());
                     String deviceName = "";
                     if (room != null) {
                         deviceName = room.getRoomName() + "的" + device.getDeviceName();

@@ -38,6 +38,13 @@ public class BdSdkUtils {
         return client.lexer(text, null);
     }
 
+
+    /*对语句进行词语拆分*/
+    public JSONObject lexer(String text) {
+        return client.lexer(text, null);
+    }
+
+
     public JSONObject simnet(String userSpeak, Device device) {
 
 //        BOW（词包）模型
