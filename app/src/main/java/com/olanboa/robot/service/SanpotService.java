@@ -12,7 +12,6 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.gson.Gson;
 import com.olanboa.robot.R;
 import com.olanboa.robot.activity.LoginActivity;
 import com.olanboa.robot.datas.CacheKeys;
@@ -26,7 +25,6 @@ import com.orvibo.homemate.bo.Device;
 import com.orvibo.homemate.bo.DeviceStatus;
 import com.orvibo.homemate.bo.PayloadData;
 import com.orvibo.homemate.bo.Room;
-import com.orvibo.homemate.core.product.ProductManager;
 import com.orvibo.homemate.event.BaseEvent;
 import com.orvibo.homemate.model.PropertyReport;
 import com.orvibo.homemate.model.family.FamilyManager;
@@ -177,7 +175,6 @@ public class SanpotService extends BindBaseService {
 
                 @Override
                 public boolean onRecognizeResult(final Grammar grammar) {
-                    //当返回值为true时，表示机器人不再对该文字做后续响应，false反之
 
                     if (!CacheUtil.getInstance().getBooleanCache(CacheKeys.ISLOGIN, false)) {
                         return false;
@@ -187,174 +184,175 @@ public class SanpotService extends BindBaseService {
                     Log.e("csl", "=======机器人识别的文字=====" + grammar.getText());
 
 
-                    final List<Device> deviceList = LocalDataApi.getDevicesByFamily(FamilyManager.getCurrentFamilyId());
-
-                    for (Device item : deviceList) {
-                        Log.e("csl", "--所有本地设备信息-->" + new Gson().toJson(item));
-
-                        Log.e("csl", "=============>" + ProductManager.isRFSonDevice(item));
-                    }
+                    //当返回值为true时，表示机器人不再对该文字做后续响应，false反之
+                    if (grammar.getText().contains(openOrder)
+                            || grammar.getText().contains(closeOrder)
+                            || grammar.getText().contains(highState)
+                            || grammar.getText().contains(lowerState)) {
 
 
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-
-
-                            boolean isRobotControl = false;//鉴别当前的设备是否能够被控制
-
-                            for (final Device item : deviceList) {
-
-                                //todo 每次增加控制设备 在这里需要添加对应的设备号
-                                if (item.getDeviceType() != 0
-                                        && item.getDeviceType() != 1
-                                        && item.getDeviceType() != 2
-                                        && item.getDeviceType() != 3
-                                        && item.getDeviceType() != 4
-                                        && item.getDeviceType() != 5
-                                        && item.getDeviceType() != 6
-                                        && item.getDeviceType() != 8
-                                        && item.getDeviceType() != 19
-                                        && item.getDeviceType() != 29
-                                        && item.getDeviceType() != 34
-                                        && item.getDeviceType() != 35
-                                        && item.getDeviceType() != 38
-                                        && item.getDeviceType() != 42
-                                        && item.getDeviceType() != 43
-                                        && item.getDeviceType() != 72
-
-                                        ) {
-                                    continue;
-                                }
-
-
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
                                 try {
 
-                                    String meansText = grammar.getText();
+                                    boolean isRobotControl = false;//鉴别当前的设备是否能够被控制
+
+                                    String meansText = "";
+                                    meansText = grammar.getText();
                                     if (meansText.contains("text")) {
                                         meansText = new JSONObject(grammar.getText()).getString("text");
                                     }
 
 
-                                    String deviceTypeName = "";
+                                    double maxScore = 0;
+                                    Device defaultDevice = null;
 
-                                    switch (item.getDeviceType()) {
-                                        case 5://空调
-                                            deviceTypeName = "空调";
 
-                                            if (meansText.contains("温度")) {
-                                                deviceTypeName = "温度";
-                                            }
+                                    for (final Device item : LocalDataApi.getDevicesByFamily(FamilyManager.getCurrentFamilyId())) {
 
-                                            break;
-                                        case 6://电视
-                                            deviceTypeName = "电视";
-                                            break;
+                                        //todo 每次增加控制设备 在这里需要添加对应的设备号
+                                        if (item.getDeviceType() != 0
+                                                && item.getDeviceType() != 1
+                                                && item.getDeviceType() != 2
+                                                && item.getDeviceType() != 3
+                                                && item.getDeviceType() != 4
+                                                && item.getDeviceType() != 5
+                                                && item.getDeviceType() != 6
+                                                && item.getDeviceType() != 8
+                                                && item.getDeviceType() != 19
+                                                && item.getDeviceType() != 29
+                                                && item.getDeviceType() != 34
+                                                && item.getDeviceType() != 35
+                                                && item.getDeviceType() != 38
+                                                && item.getDeviceType() != 42
+                                                && item.getDeviceType() != 43
+                                                && item.getDeviceType() != 72
 
-                                    }
-
-                                    if (!deviceTypeName.isEmpty()) {
-
-                                        if (meansText.contains(deviceTypeName)
-                                                &&
-                                                (meansText.contains(openOrder) || meansText.contains(closeOrder)
-                                                        || meansText.contains(highState) || meansText.contains(lowerState))
                                                 ) {
+                                            continue;
+                                        }
 
 
-                                            //获取当前设备的房间名称
-                                            String roomName = "";
-
-                                            Room room = getRoomById(item.getRoomId());
-
-                                            if (room != null) {
-                                                roomName = room.getRoomName();
-                                            }
-
-
-                                            if (meansText.contains(openOrder)) {
-                                                meansText = openOrder + deviceTypeName;
-                                            } else if (meansText.contains(closeOrder)) {
-                                                meansText = closeOrder + deviceTypeName;
-                                            } else if (meansText.contains(highState)) {
-                                                meansText = highState + deviceTypeName;
-                                            } else if (meansText.contains(lowerState)) {
-                                                meansText = lowerState + deviceTypeName;
-                                            }
-
-
-                                            if (!TextUtils.isEmpty(roomName) && meansText.contains(roomName)) {
-                                                meansText = roomName + roomName;
-                                            }
-
-
-                                            if (!TextUtils.isEmpty(roomName) && item.getDeviceName().contains(roomName)) {
-                                                item.setDeviceName(item.getRoomName() + deviceTypeName);
-                                            } else {
-                                                item.setDeviceName(deviceTypeName);
-                                            }
-
+                                        if ((meansText.contains("电视")
+                                                || meansText.contains("空调")
+                                                || meansText.contains("温度"))
+                                                &&
+                                                (item.getDeviceType() != 5 || item.getDeviceType() != 6)
+                                                ) {
+                                            return;
 
                                         }
 
-                                    }
 
+                                        String deviceTypeName = "";
 
-                                    //进行语义识别
-                                    JSONObject jsonObject = BdSdkUtils.getInstance().simnet(meansText, item);
-                                    Log.e("csl", "--------语义相识度------>" + jsonObject.toString());
+                                        switch (item.getDeviceType()) {
+                                            case 5://空调
+                                                deviceTypeName = "空调";
 
-                                    //如果超过百度每秒的识别限制则直接退出
-                                    if (jsonObject.toString().contains("error_code")
-                                            &&
-                                            (jsonObject.getInt("error_code") == 17
-                                                    || jsonObject.getInt("error_code") == 18
-                                                    || jsonObject.getInt("error_code") == 19)
-                                            ) {
-                                        systemManager.showEmotion(EmotionsType.QUESTION);
-                                        startSpeak(speechManager, GrammerData.orderError);
-                                        break;
-                                    }
-
-
-                                    Thread.sleep(200);
-
-                                    if (jsonObject.getDouble("score") >= 0.55) {
-
-                                        DeviceControHelper deviceControHelper = new DeviceControHelper(item);
-
-                                        if (meansText.contains(openOrder) || meansText.contains(closeOrder)) {
-                                            startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
-
-                                            deviceControHelper.deviceSwitch(CacheUtil.getInstance().getStringCache(CacheKeys.LOGINACCOUNT, ""), meansText.contains(openOrder) ? true : false, new BaseResultListener() {
-                                                @Override
-                                                public void onResultReturn(BaseEvent baseEvent) {
-
-
+                                                if (meansText.contains("温度")) {
+                                                    deviceTypeName = "温度";
                                                 }
-                                            });
 
-                                        } else if (meansText.contains(highState) || meansText.contains(lowerState)) {
-                                            startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
+                                                break;
+                                            case 6://电视
+                                                deviceTypeName = "电视";
+                                                break;
 
-                                            deviceControHelper.tempDeviceControl(false, meansText.contains(highState) ? true : false, new BaseResultListener() {
-                                                @Override
-                                                public void onResultReturn(BaseEvent baseEvent) {
+                                        }
+
+                                        if (!deviceTypeName.isEmpty()) {
+
+                                            if (meansText.contains(deviceTypeName)
+                                                    &&
+                                                    (meansText.contains(openOrder) || meansText.contains(closeOrder)
+                                                            || meansText.contains(highState) || meansText.contains(lowerState))
+                                                    ) {
+
+
+                                                //获取当前设备的房间名称
+                                                String roomName = "";
+
+                                                Room room = getRoomById(item.getRoomId());
+
+                                                if (room != null) {
+                                                    roomName = room.getRoomName();
                                                 }
-                                            });
 
-                                        } else {
+
+                                                if (meansText.contains(openOrder)) {
+                                                    meansText = openOrder + deviceTypeName;
+                                                } else if (meansText.contains(closeOrder)) {
+                                                    meansText = closeOrder + deviceTypeName;
+                                                } else if (meansText.contains(highState)) {
+                                                    meansText = highState + deviceTypeName;
+                                                } else if (meansText.contains(lowerState)) {
+                                                    meansText = lowerState + deviceTypeName;
+                                                }
+
+
+                                                if (!TextUtils.isEmpty(roomName) && meansText.contains(roomName)) {
+                                                    meansText = roomName + roomName;
+                                                }
+
+
+                                                if (!TextUtils.isEmpty(roomName) && item.getDeviceName().contains(roomName)) {
+                                                    item.setDeviceName(item.getRoomName() + deviceTypeName);
+                                                } else {
+                                                    item.setDeviceName(deviceTypeName);
+                                                }
+
+
+                                            }
+
+                                        }
+
+
+                                        //进行语义识别
+                                        JSONObject jsonObject = BdSdkUtils.getInstance().simnet(meansText, item);
+                                        Log.e("csl", "--------语义相识度------>" + jsonObject.toString());
+
+                                        //如果超过百度每秒的识别限制则直接退出
+                                        if (jsonObject.toString().contains("error_code")
+                                                &&
+                                                (jsonObject.getInt("error_code") == 17
+                                                        || jsonObject.getInt("error_code") == 18
+                                                        || jsonObject.getInt("error_code") == 19)
+                                                ) {
+                                            systemManager.showEmotion(EmotionsType.QUESTION);
                                             startSpeak(speechManager, GrammerData.orderError);
+                                            break;
                                         }
 
 
-                                        isRobotControl = true;
+                                        Thread.sleep(200);
 
-                                        break;
+                                        if (jsonObject.getDouble("score") >= 0.8) {
+
+                                            deviceContaol(item, meansText, speechManager);
+                                            isRobotControl = true;
+                                            break;
+                                        } else {
+                                            if (jsonObject.getDouble("score") > maxScore) {
+                                                maxScore = jsonObject.getDouble("score");
+                                                defaultDevice = item;
+                                            }
+
+                                        }
+
+
                                     }
+
+
+                                    if (defaultDevice != null && maxScore > 0.6) {
+                                        deviceContaol(defaultDevice, meansText, speechManager);
+                                        isRobotControl = true;
+                                    }
+
 
                                     if (!isRobotControl) {
-                                        startSpeak(speechManager, GrammerData.orderError);
+                                        startSpeak(speechManager, meansText + "," + GrammerData.orderError);
                                     }
 
                                 } catch (JSONException e) {
@@ -362,23 +360,11 @@ public class SanpotService extends BindBaseService {
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
-
-
                             }
+                        }).start();
 
-
-                        }
-                    }).start();
-
-
-                    if (grammar.getText().contains(openOrder)
-                            || grammar.getText().contains(closeOrder)
-                            || grammar.getText().contains(highState)
-                            || grammar.getText().contains(lowerState)) {
                         return true;
                     }
-
-
                     return false;
                 }
 
@@ -391,6 +377,7 @@ public class SanpotService extends BindBaseService {
         }
 
 
+        //对传感器设备的监听
         PropertyReport.getInstance(getApplicationContext()).registerNewPropertyReport(new OnNewPropertyReportListener() {
 
             @Override
@@ -494,11 +481,6 @@ public class SanpotService extends BindBaseService {
                 }
 
 
-                Log.e("csl", "=============设备属性报告==========");
-                Log.e("csl", "-device---" + new Gson().toJson(device));
-                Log.e("csl", "--------DeviceStatus---->" + new Gson().toJson(deviceStatus));
-                Log.e("csl", "-------payloadData--------->" + new Gson().toJson(payloadData));
-                Log.e("csl", "========报告=======END======================");
             }
         });
 
@@ -535,8 +517,38 @@ public class SanpotService extends BindBaseService {
             }
         }
 
-
         return null;
+
+    }
+
+
+    private void deviceContaol(Device item, String meansText, SpeechManager speechManager) {
+
+        DeviceControHelper deviceControHelper = new DeviceControHelper(item);
+
+        if (meansText.contains(openOrder) || meansText.contains(closeOrder)) {
+            startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
+
+            deviceControHelper.deviceSwitch(CacheUtil.getInstance().getStringCache(CacheKeys.LOGINACCOUNT, ""), meansText.contains(openOrder) ? true : false, new BaseResultListener() {
+                @Override
+                public void onResultReturn(BaseEvent baseEvent) {
+
+
+                }
+            });
+
+        } else if (meansText.contains(highState) || meansText.contains(lowerState)) {
+            startSpeak(speechManager, GrammerData.orderDO[new Random().nextInt(GrammerData.orderDO.length)]);
+
+            deviceControHelper.tempDeviceControl(false, meansText.contains(highState) ? true : false, new BaseResultListener() {
+                @Override
+                public void onResultReturn(BaseEvent baseEvent) {
+                }
+            });
+
+        } else {
+            startSpeak(speechManager, GrammerData.orderError);
+        }
 
     }
 

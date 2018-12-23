@@ -1,11 +1,18 @@
 package com.olanboa.robot.util;
 
+import android.util.Log;
+
 import com.baidu.aip.nlp.AipNlp;
+import com.google.gson.Gson;
 import com.orvibo.homemate.bo.Device;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * 百度sdk：语言处理基础技术
@@ -44,7 +51,6 @@ public class BdSdkUtils {
         return client.lexer(text, null);
     }
 
-
     public JSONObject simnet(String userSpeak, Device device) {
 
 //        BOW（词包）模型
@@ -65,4 +71,45 @@ public class BdSdkUtils {
 
         return client.simnet(userSpeak, device.getDeviceName(), options);
     }
+
+
+    /*获取内容中的所有名词*/
+    public List<String> getNArrayList(String text) {
+
+        List<String> nArrays = new ArrayList<>();
+
+        //把用户所说的话进行词语拆分,并且保存语句中的所有名词
+        JSONObject userSpeakJson = lexer(text);
+
+
+        Log.e("csl", "==百度语音拆分的结果==>" + userSpeakJson.toString());
+
+
+        try {
+            if (userSpeakJson.getInt("status") == 0) {
+
+                JSONArray jsonArray = userSpeakJson.getJSONObject("results").getJSONArray("items");
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    //如果是名词
+                    if (jsonObject.getString("pos").equals("n")) {
+                        nArrays.add(jsonObject.getString("item"));
+                    }
+
+                }
+
+
+                Log.e("csl", "==百度语音拆分的结果==>" + new Gson().toJson(nArrays));
+
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return nArrays;
+    }
+
+
 }

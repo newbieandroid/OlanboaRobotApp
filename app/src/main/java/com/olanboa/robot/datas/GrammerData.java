@@ -24,9 +24,6 @@ public class GrammerData {
     public final static String highState = "高";
     public final static String lowerState = "低";
 
-    /*光线控制*/
-    public final static String lightHigh = "亮";
-    public final static String lightLower = "暗";
 
 
 }
