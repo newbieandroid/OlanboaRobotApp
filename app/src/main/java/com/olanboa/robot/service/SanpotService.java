@@ -12,6 +12,7 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.olanboa.robot.R;
 import com.olanboa.robot.activity.LoginActivity;
 import com.olanboa.robot.datas.CacheKeys;
@@ -234,15 +235,7 @@ public class SanpotService extends BindBaseService {
                                         }
 
 
-                                        if ((meansText.contains("电视")
-                                                || meansText.contains("空调")
-                                                || meansText.contains("温度"))
-                                                &&
-                                                (item.getDeviceType() != 5 || item.getDeviceType() != 6)
-                                                ) {
-                                            return;
-
-                                        }
+                                        Log.e("csl", "-设备信息-->" + new Gson().toJson(item));
 
 
                                         String deviceTypeName = "";
@@ -264,11 +257,7 @@ public class SanpotService extends BindBaseService {
 
                                         if (!deviceTypeName.isEmpty()) {
 
-                                            if (meansText.contains(deviceTypeName)
-                                                    &&
-                                                    (meansText.contains(openOrder) || meansText.contains(closeOrder)
-                                                            || meansText.contains(highState) || meansText.contains(lowerState))
-                                                    ) {
+                                            if (meansText.contains(deviceTypeName)) {
 
 
                                                 //获取当前设备的房间名称
@@ -352,7 +341,7 @@ public class SanpotService extends BindBaseService {
 
 
                                     if (!isRobotControl) {
-                                        startSpeak(speechManager,  GrammerData.orderError);
+                                        startSpeak(speechManager, GrammerData.orderError);
                                     }
 
                                 } catch (JSONException e) {
