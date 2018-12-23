@@ -113,6 +113,8 @@ public class DeviceControHelper {
             case 2:
             case 19:
             case 29:
+            case 38:
+            case 43:
                 if (isOpen) {
                     DeviceControlApi.deviceOpen(controlDevice.getUid(), controlDevice.getDeviceId(), 100, listener);
                 } else {

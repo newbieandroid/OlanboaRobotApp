@@ -186,6 +186,7 @@ public class SanpotService extends BindBaseService {
 
                     Log.e("csl", "=======机器人识别的文字=====" + grammar.getText());
 
+
                     final List<Device> deviceList = LocalDataApi.getDevicesByFamily(FamilyManager.getCurrentFamilyId());
 
                     for (Device item : deviceList) {
@@ -199,24 +200,27 @@ public class SanpotService extends BindBaseService {
                         @Override
                         public void run() {
 
+
+                            boolean isRobotControl = false;//鉴别当前的设备是否能够被控制
+
                             for (final Device item : deviceList) {
 
                                 //todo 每次增加控制设备 在这里需要添加对应的设备号
                                 if (item.getDeviceType() != 0
                                         && item.getDeviceType() != 1
-                                        && item.getDeviceType() != 19
-                                        && item.getDeviceType() != 38
                                         && item.getDeviceType() != 2
-                                        && item.getDeviceType() != 43
-                                        && item.getDeviceType() != 29
-                                        && item.getDeviceType() != 6
-                                        && item.getDeviceType() != 5
                                         && item.getDeviceType() != 3
                                         && item.getDeviceType() != 4
+                                        && item.getDeviceType() != 5
+                                        && item.getDeviceType() != 6
                                         && item.getDeviceType() != 8
+                                        && item.getDeviceType() != 19
+                                        && item.getDeviceType() != 29
                                         && item.getDeviceType() != 34
                                         && item.getDeviceType() != 35
+                                        && item.getDeviceType() != 38
                                         && item.getDeviceType() != 42
+                                        && item.getDeviceType() != 43
                                         && item.getDeviceType() != 72
 
                                         ) {
@@ -344,9 +348,14 @@ public class SanpotService extends BindBaseService {
                                         }
 
 
+                                        isRobotControl = true;
+
                                         break;
                                     }
 
+                                    if (!isRobotControl) {
+                                        startSpeak(speechManager, GrammerData.orderError);
+                                    }
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
