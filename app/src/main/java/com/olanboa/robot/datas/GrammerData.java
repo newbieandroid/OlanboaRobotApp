@@ -11,7 +11,7 @@ public class GrammerData {
 
     public static final String[] orderDO = new String[]{"主人,我这就处理", "马上完成主人的命令"};
 
-    public static final String orderError = "主人,这条命令我还不会";
+    public static final String orderError = "主人,我没听清,请再说一次";
 
     public static final String offLine = "已离线";
 
@@ -23,7 +23,6 @@ public class GrammerData {
     /*温度控制*/
     public final static String highState = "高";
     public final static String lowerState = "低";
-
 
 
 }

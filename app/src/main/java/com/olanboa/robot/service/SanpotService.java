@@ -352,7 +352,7 @@ public class SanpotService extends BindBaseService {
 
 
                                     if (!isRobotControl) {
-                                        startSpeak(speechManager, meansText + "," + GrammerData.orderError);
+                                        startSpeak(speechManager,  GrammerData.orderError);
                                     }
 
                                 } catch (JSONException e) {
