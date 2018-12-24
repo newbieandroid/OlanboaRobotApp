@@ -334,7 +334,7 @@ public class SanpotService extends BindBaseService {
                                     }
 
 
-                                    if (defaultDevice != null && maxScore > 0.6) {
+                                    if (defaultDevice != null && maxScore > 0.6 && !isRobotControl) {
                                         deviceContaol(defaultDevice, meansText, speechManager);
                                         isRobotControl = true;
                                     }
@@ -512,6 +512,9 @@ public class SanpotService extends BindBaseService {
 
 
     private void deviceContaol(Device item, String meansText, SpeechManager speechManager) {
+
+
+        Log.e("csl", "=被控制的设备=>" + new Gson().toJson(item));
 
         DeviceControHelper deviceControHelper = new DeviceControHelper(item);
 
