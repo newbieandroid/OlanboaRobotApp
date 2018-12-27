@@ -9,6 +9,7 @@ import com.kookong.app.data.AcIr;
 import com.kookong.app.data.IrData;
 import com.kookong.app.data.IrDataList;
 import com.orvibo.homemate.api.DeviceControlApi;
+import com.orvibo.homemate.api.SmartSceneApi;
 import com.orvibo.homemate.api.listener.BaseResultListener;
 import com.orvibo.homemate.bo.Device;
 
@@ -97,8 +98,6 @@ public class DeviceControHelper {
 
 
     /*所有设备的开关操作都走这个方法*/
-
-
     public void deviceSwitch(String userName, boolean isOpen, final BaseResultListener listener) {
 
 
@@ -269,6 +268,13 @@ public class DeviceControHelper {
 
             }
         });
+
+    }
+
+
+    /*模式控制*/
+    public void controlScene(String userName, String sceneNo, final BaseResultListener listener) {
+        SmartSceneApi.controlScene(userName, sceneNo, listener);
 
     }
 

@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.baidu.aip.nlp.AipNlp;
 import com.google.gson.Gson;
-import com.orvibo.homemate.bo.Device;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,7 +50,7 @@ public class BdSdkUtils {
         return client.lexer(text, null);
     }
 
-    public JSONObject simnet(String userSpeak, Device device) {
+    public JSONObject simnet(String userSpeak, String text) {
 
 //        BOW（词包）模型
 //
@@ -68,8 +67,11 @@ public class BdSdkUtils {
 
         HashMap<String, Object> options = new HashMap<String, Object>();
         options.put("model", "CNN");
+        JSONObject object = client.simnet(userSpeak, text, options);
 
-        return client.simnet(userSpeak, device.getDeviceName(), options);
+        Log.e("csl", userSpeak + "========语音相识度内容===" + text);
+        Log.e("csl", "========语音相识度识别结果===" + object.toString());
+        return object;
     }
 
 
