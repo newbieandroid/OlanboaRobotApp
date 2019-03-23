@@ -29,10 +29,12 @@ public class MyApp extends Application {
         UserApi.setDebugMode(true, true);
         //初始化HomeMate SDK。如果app继承了VihomeApplication则不需要再初始化sdk；如果没有继承则需要先初始化。
         OrviboApi.initHomeMateSDK(this);
+        UserApi.initSource(getResources().getString(R.string.oriboaSource), IDC.DEFAULT);
 
+
+        //红外码设备初始化
         KookongSDK.init(this, "sdk_android", getResources().getString(R.string.oriboaKey), getResources().getString(R.string.oriboaSource));
 
-        UserApi.initSource(getResources().getString(R.string.oriboaSource), IDC.DEFAULT);
 
         CacheUtil.getInstance().init(this);
 

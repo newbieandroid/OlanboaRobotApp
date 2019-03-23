@@ -5,19 +5,27 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.WindowManager;
 
 import com.google.gson.Gson;
 import com.olanboa.robot.R;
 import com.olanboa.robot.activity.LoginActivity;
 import com.olanboa.robot.datas.CacheKeys;
 import com.olanboa.robot.datas.GrammerData;
+import com.olanboa.robot.structure.XiaoOuVideoPresenter;
+import com.olanboa.robot.structure.XiaoOuVideoView;
 import com.olanboa.robot.util.BdSdkUtils;
 import com.olanboa.robot.util.CacheUtil;
 import com.orvibo.homemate.api.LocalDataApi;
@@ -28,6 +36,7 @@ import com.orvibo.homemate.bo.DeviceStatus;
 import com.orvibo.homemate.bo.PayloadData;
 import com.orvibo.homemate.bo.Room;
 import com.orvibo.homemate.bo.Scene;
+import com.orvibo.homemate.data.DeviceType;
 import com.orvibo.homemate.event.BaseEvent;
 import com.orvibo.homemate.model.PropertyReport;
 import com.orvibo.homemate.model.family.FamilyManager;
@@ -54,7 +63,7 @@ import static com.olanboa.robot.datas.GrammerData.lowerState;
 import static com.olanboa.robot.datas.GrammerData.openOrder;
 
 
-public class SanpotService extends BindBaseService {
+public class SanpotService extends BindBaseService implements XiaoOuVideoView {
     private ServiceConnection mConnection;
 
     private static final int PID = android.os.Process.myPid();
@@ -152,6 +161,7 @@ public class SanpotService extends BindBaseService {
 
 
         final SpeechManager speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
+
 
         if (speechManager != null) {
 
@@ -572,9 +582,23 @@ public class SanpotService extends BindBaseService {
 
 
     private void deviceContaol(Device item, String meansText, SpeechManager speechManager) {
-
-
         Log.e("csl", "=被控制的设备=>" + new Gson().toJson(item));
+
+        if (item.getDeviceType() == DeviceType.CAMERA) {
+
+
+            XiaoOuVideoPresenter xiaoOuVideoPresenter = new XiaoOuVideoPresenter(getContext(), this, speechManager);
+
+            if (meansText.contains(openOrder)) {
+                xiaoOuVideoPresenter.startVideo(item);
+            } else {
+                xiaoOuVideoPresenter.stopVideo(item);
+            }
+
+
+            return;
+        }
+
 
         DeviceControHelper deviceControHelper = new DeviceControHelper(item);
 
@@ -604,5 +628,48 @@ public class SanpotService extends BindBaseService {
 
     }
 
+
+    private WindowManager windowManager;
+    private View contentView;
+
+    @Override
+    public void showWindowView() {
+
+        if (windowManager == null) {
+            windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        }
+
+        if (contentView == null) {
+            contentView = LayoutInflater.from(getContext()).inflate(R.layout.pop_video, null);
+        }
+
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+        // 类型
+        params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+
+        // 如果设置了WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE，弹出的View收不到Back键的事件
+        params.flags = WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
+
+        // 不设置这个弹出框的透明遮罩显示为黑色
+        params.format = PixelFormat.TRANSLUCENT;
+        params.width = WindowManager.LayoutParams.MATCH_PARENT;
+        params.height = WindowManager.LayoutParams.MATCH_PARENT;
+        params.gravity = Gravity.CENTER;
+        windowManager.addView(contentView, params);
+    }
+
+    @Override
+    public void hideWindowView() {
+
+        if (windowManager != null && contentView != null) {
+            windowManager.removeView(contentView);
+        }
+
+    }
+
+    @Override
+    public View getWindowView() {
+        return contentView;
+    }
 
 }

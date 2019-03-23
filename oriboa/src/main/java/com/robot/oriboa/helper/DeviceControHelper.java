@@ -1,7 +1,9 @@
 package com.robot.oriboa.helper;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.danale.video.sdk.Danale;
 import com.google.gson.Gson;
 import com.hzy.tvmao.KookongSDK;
 import com.hzy.tvmao.interf.IRequestResult;
@@ -12,6 +14,8 @@ import com.orvibo.homemate.api.DeviceControlApi;
 import com.orvibo.homemate.api.SmartSceneApi;
 import com.orvibo.homemate.api.listener.BaseResultListener;
 import com.orvibo.homemate.bo.Device;
+import com.orvibo.homemate.camera.danale.DanaleLoginBiz;
+import com.orvibo.homemate.camera.danale.LoginDanaleCallBack;
 
 import java.util.ArrayList;
 
@@ -106,6 +110,7 @@ public class DeviceControHelper {
 
 
         switch (controlDevice.getDeviceType()) {
+
 
             case 0: //能够直接控制开关状态的设备
             case 1:
@@ -275,8 +280,41 @@ public class DeviceControHelper {
     /*模式控制*/
     public void controlScene(String userName, String sceneNo, final BaseResultListener listener) {
         SmartSceneApi.controlScene(userName, sceneNo, listener);
-
     }
 
 
+    public void xiaoOuDevice(Context context, Device controlDevice) {
+
+        if (Danale.getSession() == null) {
+            //未登录到第三方服务器，需要登录
+            DanaleLoginBiz danaleLoginBiz = new DanaleLoginBiz(new LoginDanaleCallBack() {
+                @Override
+                public void getTokenFail() {
+                    //登录第三方服务器失败的处理
+                }
+
+                @Override
+                public void loginDanaleSuccess() {
+                    getDanaleDeviceList();
+                }
+
+                @Override
+                public void loginDanaleFail() {
+                    //登录第三方服务器失败的处理
+                }
+
+                @Override
+                public void loginCountOut() {
+                    //登录第三方服务器失败的处理
+                }
+            }, context);
+            danaleLoginBiz.getDanaleAccessToken();
+        } else {
+            getDanaleDeviceList();
+        }
+    }
+
+
+    private void getDanaleDeviceList() {
+    }
 }

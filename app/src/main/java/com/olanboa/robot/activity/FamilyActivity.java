@@ -7,15 +7,16 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
+import com.google.gson.Gson;
 import com.olanboa.robot.R;
 import com.olanboa.robot.datas.CacheKeys;
 import com.olanboa.robot.listener.FamilySwitchListener;
@@ -24,7 +25,9 @@ import com.olanboa.robot.structure.FamilyPresenter;
 import com.olanboa.robot.structure.FamilyView;
 import com.olanboa.robot.transform.CircleTransform;
 import com.olanboa.robot.util.CacheUtil;
+import com.orvibo.homemate.api.LocalDataApi;
 import com.orvibo.homemate.api.UserApi;
+import com.orvibo.homemate.bo.Device;
 import com.orvibo.homemate.bo.Family;
 import com.orvibo.homemate.model.family.FamilyManager;
 import com.sanbot.opensdk.base.BindBaseActivity;
@@ -55,6 +58,10 @@ public class FamilyActivity extends BindBaseActivity implements FamilyView {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.familyactivitylayout);
 
+
+        final SpeechManager speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
+
+
         exitLoginActivity = findViewById(R.id.exitLoginActivity);
 
         exitLoginActivity.setOnClickListener(new View.OnClickListener() {
@@ -81,7 +88,7 @@ public class FamilyActivity extends BindBaseActivity implements FamilyView {
 
         familyPresenter.queryFamilyList(new GetFamilyListListener() {
             @Override
-            public void onResult(boolean hasDatas, final List<Family> familyList) {
+            public void onResult(boolean hasDatas, final List<Family> familyList, final String msg) {
 
                 if (hasDatas) {
                     familyListView.setAdapter(adapter = new BaseQuickAdapter<Family, BaseViewHolder>(R.layout.item_family, familyList) {
@@ -120,8 +127,6 @@ public class FamilyActivity extends BindBaseActivity implements FamilyView {
                             isOnclickEnable = false;
 
 
-                            final SpeechManager speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
-
                             switch (view.getId()) {
                                 case R.id.familyItemStateIcon:
 
@@ -138,6 +143,14 @@ public class FamilyActivity extends BindBaseActivity implements FamilyView {
 
                                         @Override
                                         public void isSwitchOk(boolean state) {
+
+
+                                            List<Device> devices = LocalDataApi.getDevicesByFamily(family.getFamilyId());
+
+                                            for (Device item : devices) {
+                                                Log.e("csl", family.getFamilyName() + "==设备==>" + new Gson().toJson(item));
+                                            }
+
 
                                             isOnclickEnable = true;
                                             if (state) {
@@ -156,11 +169,8 @@ public class FamilyActivity extends BindBaseActivity implements FamilyView {
 
 
                 } else {
-
-                    Toast.makeText(FamilyActivity.this, "获取家庭信息失败", Toast.LENGTH_SHORT).show();
-
+                    speechManager.startSpeak(msg);
                 }
-
 
             }
         });

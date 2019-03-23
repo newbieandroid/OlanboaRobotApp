@@ -74,21 +74,18 @@ public class FamilyPresenter extends BasePresenter<FamilyModel, FamilyView> {
                     if (queryEvent.getFamilyList() != null) {
 
                         if (listListener != null) {
-                            listListener.onResult(true, queryEvent.getFamilyList());
+                            listListener.onResult(true, queryEvent.getFamilyList(), "获取成功");
                         }
-
-                        Log.e("csl", "--房间信息-->" + new Gson().toJson(queryEvent.getFamilyList()));
-
 
                     } else {
                         if (listListener != null) {
-                            listListener.onResult(false, null);
+                            listListener.onResult(false, null, "暂无家庭信息");
                         }
                     }
                 } else {
 
                     if (listListener != null) {
-                        listListener.onResult(false, null);
+                        listListener.onResult(false, null, "网络链接超时");
                     }
                 }
 

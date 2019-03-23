@@ -7,6 +7,6 @@ import java.util.List;
 public interface GetFamilyListListener {
 
 
-    void onResult(boolean hasDatas,List<Family> familyList);
+    void onResult(boolean hasDatas, List<Family> familyList, String msg);
 
 }
